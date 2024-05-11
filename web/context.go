@@ -9,7 +9,7 @@ import (
 type Context struct {
 	W          http.ResponseWriter
 	R          *http.Request
-	PathParams map[string]any // 路径参数
+	Params     map[string]any // 路径参数
 	Handlers   []Handler      // 中间件，控制器方法数组
 	Index      int            // 指定路由的当前执行的方法索引
 	StatusCode int            // 错误码
@@ -33,8 +33,8 @@ func (c *Context) Query(key string) string {
 	return c.R.URL.Query().Get(key)
 }
 
-func (c *Context) PathParam(key string) any {
-	if v, ok := c.PathParams[key]; ok {
+func (c *Context) PathVariable(key string) any {
+	if v, ok := c.Params[key]; ok {
 		return v
 	}
 	return nil
@@ -49,7 +49,7 @@ func (c *Context) SetHeader(key string, value string) {
 	c.W.Header().Set(key, value)
 }
 
-func (c *Context) JSON(status int, data any) error {
+func (c *Context) JSON(status int, data ...any) error {
 	return c.render(status, &render.JSON{Data: data})
 }
 

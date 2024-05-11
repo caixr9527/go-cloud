@@ -10,12 +10,11 @@ import (
 
 type Engine struct {
 	trie           *web.Trie
-	middleware     []web.Handler
 	requestHandler *web.RequestHandler
 }
 
 func (e *Engine) Use(handler ...web.Handler) *Engine {
-	e.middleware = append(e.middleware, handler...)
+	e.requestHandler.UseGlobal(handler...)
 	return e
 }
 
@@ -26,8 +25,7 @@ func (e *Engine) Handle() *web.RequestHandler {
 func New() *Engine {
 	trie := web.NewTrie()
 	return &Engine{
-		trie:       trie,
-		middleware: make([]web.Handler, 0),
+		trie: trie,
 		requestHandler: &web.RequestHandler{
 			Trie: trie,
 		},
@@ -48,26 +46,23 @@ func (e *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		isMatch, handlers, params = e.trie.GetEstart().Search(routeString)
 		if !isMatch {
 			w.WriteHeader(http.StatusNotFound)
-			fmt.Fprintln(w, r.RequestURI+"not found")
+			fmt.Fprintln(w, r.RequestURI+" not found")
 			return
 		}
 	}
 	context = e.trie.GetEstart().Pool.Get().(*web.Context)
 	context.R = r
 	context.W = w
-	context.PathParams = params
+	context.Params = params
 	context.Index = -1
 	context.Handlers = handlers
-	e.Next()
 	context.Next()
 	w = context.W
 	e.trie.GetEstart().Pool.Put(context)
 }
 
-func (e *Engine) Next() {
-	for _, handler := range e.middleware {
-		handler(e.trie.GetEstart().Pool.Get().(*web.Context))
-	}
+func (e *Engine) Context() *web.Context {
+	return e.trie.GetEstart().Pool.Get().(*web.Context)
 }
 
 func (e *Engine) Run(addr string) {
