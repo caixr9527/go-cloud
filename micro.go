@@ -55,9 +55,9 @@ func (e *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	context = e.trie.GetEstart().Pool.Get().(*web.Context)
 	context.R = r
 	context.W = w
-	context.Params = params
+	context.PathParams = params
 	context.Index = -1
-	context.ReqHandlers = handlers
+	context.Handlers = handlers
 	e.Next()
 	context.Next()
 	w = context.W
