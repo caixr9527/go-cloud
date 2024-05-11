@@ -1,4 +1,4 @@
-package go_cloud
+package cloud
 
 import (
 	"errors"

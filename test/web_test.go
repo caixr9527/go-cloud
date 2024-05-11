@@ -2,14 +2,14 @@ package test
 
 import (
 	"fmt"
-	go_cloud "github.com/caixr9527/go-cloud"
+	"github.com/caixr9527/go-cloud"
 	"github.com/caixr9527/go-cloud/web"
 	"net/http"
 	"testing"
 )
 
 func TestRun(t *testing.T) {
-	engine := go_cloud.New()
+	engine := cloud.New()
 	engine.Use(func(context *web.Context) {
 		fmt.Println("Global before")
 		context.Next()
