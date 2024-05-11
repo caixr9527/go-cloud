@@ -47,6 +47,10 @@ var root = &TreeNode{
 
 var eStart = GetNewTrie()
 
+func Default() *Trie {
+	return eStart
+}
+
 func (t *Trie) GetRouteMap() map[string][]Handler {
 	return routeMap
 }
