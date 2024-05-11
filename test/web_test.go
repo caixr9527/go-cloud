@@ -36,5 +36,11 @@ func TestRun(t *testing.T) {
 	}, func(context *web.Context) {
 		context.JSON(http.StatusOK, "hello,go_cloud2")
 	})
+	handler.POST("/hello", func(context *web.Context) {
+		fmt.Println("post order middle")
+		context.Data = "gggggggggg"
+	}, func(context *web.Context) {
+		context.JSON(http.StatusOK, "post hello,go_cloud2", context.Data)
+	})
 	engine.Run(":8111")
 }

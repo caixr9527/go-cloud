@@ -18,6 +18,7 @@ type Context struct {
 	sameSite   http.SameSite
 	Keys       map[string]any
 	mu         sync.RWMutex
+	Data       any
 }
 
 // 进入对应路由的下一个方法
