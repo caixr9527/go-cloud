@@ -24,7 +24,7 @@ func (e *Engine) Handle() *web.RequestHandler {
 }
 
 func New() *Engine {
-	trie := web.Default()
+	trie := web.NewTrie()
 	return &Engine{
 		trie:       trie,
 		middleware: make([]web.Handler, 0),
