@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/caixr9527/go-cloud/web"
+	"github.com/caixr9527/go-cloud/web/render"
+	"html/template"
 	"log"
 	"net/http"
 )
@@ -11,6 +13,7 @@ import (
 type Engine struct {
 	trie           *web.Trie
 	requestHandler *web.RequestHandler
+	ops            *web.Options
 }
 
 func (e *Engine) Use(handler ...web.Handler) *Engine {
@@ -22,7 +25,7 @@ func (e *Engine) Handle() *web.RequestHandler {
 	return e.requestHandler
 }
 
-func New() *Engine {
+func Default() *Engine {
 	trie := web.NewTrie()
 	return &Engine{
 		trie: trie,
@@ -30,6 +33,13 @@ func New() *Engine {
 			Trie: trie,
 		},
 	}
+}
+
+func New(options *web.Options) *Engine {
+	engine := Default()
+	engine.ops = options
+	engine.LoadTemplate()
+	return engine
 }
 
 func (e *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -51,14 +61,18 @@ func (e *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	context = e.trie.GetEstart().Pool.Get().(*web.Context)
+	e.initContext(w, r, context, params, handlers)
+	context.Next()
+	w = context.W
+	e.trie.GetEstart().Pool.Put(context)
+}
+
+func (e *Engine) initContext(w http.ResponseWriter, r *http.Request, context *web.Context, params map[string]any, handlers []web.Handler) {
 	context.R = r
 	context.W = w
 	context.Params = params
 	context.Index = -1
 	context.Handlers = handlers
-	context.Next()
-	w = context.W
-	e.trie.GetEstart().Pool.Put(context)
 }
 
 func (e *Engine) Context() *web.Context {
@@ -76,4 +90,18 @@ func (e *Engine) Run(addr string) {
 	if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("listen: %s\n", err)
 	}
+}
+
+func (e *Engine) LoadTemplate(ops ...web.TemplateOps) {
+	var funcMap template.FuncMap
+	var pattern string
+	if len(ops) == 0 {
+		funcMap = e.ops.FuncMap
+		pattern = e.ops.TemplatePattern
+	} else {
+		funcMap = ops[0].FuncMap
+		pattern = ops[0].TemplatePattern
+	}
+	t := template.Must(template.New("").Funcs(funcMap).ParseGlob(pattern))
+	e.ops.HTMLRender = render.HTMLRender{Template: t}
 }

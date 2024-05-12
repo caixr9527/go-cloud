@@ -3,13 +3,14 @@ package test
 import (
 	"fmt"
 	"github.com/caixr9527/go-cloud"
+	"github.com/caixr9527/go-cloud/common"
 	"github.com/caixr9527/go-cloud/web"
 	"net/http"
 	"testing"
 )
 
 func TestRun(t *testing.T) {
-	engine := cloud.New()
+	engine := cloud.Default()
 	engine.Use(func(context *web.Context) {
 		fmt.Println("Global before")
 		context.Next()
@@ -28,7 +29,15 @@ func TestRun(t *testing.T) {
 		fmt.Println("user middle1")
 	}, func(context *web.Context) {
 		fmt.Println("good")
-		context.JSON(http.StatusOK, "hello,go_cloud", context.PathVariable("id"), context.PathVariable("name"))
+		data := make([]any, 0)
+		data = append(data, context.PathVariable("id"), context.PathVariable("name"), "hello,go_cloud")
+		r := &common.R{
+			Success: true,
+			Code:    http.StatusOK,
+			Data:    data,
+			Msg:     "",
+		}
+		context.JSON(http.StatusOK, r)
 	})
 	handler := handle.Group("/order")
 	handler.GET("/hello", func(context *web.Context) {
