@@ -47,7 +47,7 @@ func TestRun(t *testing.T) {
 	})
 	handler.POST("/hello", func(context *web.Context) {
 		fmt.Println("post order middle")
-		context.Data = "gggggggggg"
+		context.Data = "GGGGG"
 	}, func(context *web.Context) {
 		context.JSON(http.StatusOK, "post hello,go_cloud2", context.Data)
 	})
