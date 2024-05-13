@@ -44,7 +44,7 @@ func New(options *web.Options) *Engine {
 
 func (e *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	routeString := r.RequestURI + "/" + r.Method
+	routeString := r.URL.Path + "/" + r.Method
 
 	var context *web.Context
 	var handlers []web.Handler

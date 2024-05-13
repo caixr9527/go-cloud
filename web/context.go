@@ -1,13 +1,21 @@
 package web
 
 import (
-	"github.com/caixr9527/go-cloud/common"
+	"errors"
+	"github.com/caixr9527/go-cloud/common/utils/stringUtils"
 	"github.com/caixr9527/go-cloud/web/render"
 	"html/template"
+	"io"
+	"log"
+	"mime/multipart"
 	"net/http"
 	"net/url"
+	"os"
+	"strings"
 	"sync"
 )
+
+const defaultMaxMemory = 32 << 20
 
 type Context struct {
 	W          http.ResponseWriter
@@ -38,6 +46,89 @@ func (c *Context) Query(key string) string {
 	return c.R.URL.Query().Get(key)
 }
 
+func (c *Context) QueryDefault(key string, defaultVal string) string {
+	query := c.R.URL.Query().Get(key)
+	if stringUtils.IsBlank(query) {
+		return defaultVal
+	}
+	return query
+}
+
+func (c *Context) QueryArray(key string) []string {
+	query := c.R.URL.Query()
+	return query[key]
+}
+
+func (c *Context) QueryMap() map[string][]string {
+	return c.R.URL.Query()
+}
+
+func (c *Context) PostForm(key string) string {
+	c.parseMultipartForm()
+	return c.R.PostFormValue(key)
+}
+
+func (c *Context) PostFormArray(key string) []string {
+	c.parseMultipartForm()
+	value := c.R.PostFormValue(key)
+	if stringUtils.IsBlank(value) {
+		return nil
+	}
+	result := make([]string, 0)
+	for _, v := range strings.Split(strings.ReplaceAll(strings.ReplaceAll(value, "[", ""), "]", ""), ",") {
+		result = append(result, strings.TrimSpace(strings.ReplaceAll(v, "\"", "")))
+	}
+	return result
+}
+
+func (c *Context) PostFormMap() map[string][]string {
+	c.parseMultipartForm()
+	return c.R.PostForm
+}
+
+func (c *Context) parseMultipartForm() {
+	if err := c.R.ParseMultipartForm(defaultMaxMemory); err != nil {
+		if !errors.Is(err, http.ErrNotMultipart) {
+			//todo
+			log.Println(err)
+		}
+	}
+}
+
+func (c *Context) FormFile(name string) *multipart.FileHeader {
+	file, header, err := c.R.FormFile(name)
+	if err != nil {
+		log.Println(err)
+	}
+	defer file.Close()
+	return header
+}
+
+func (c *Context) FormFiles(name string) ([]*multipart.FileHeader, error) {
+	multipartForm, err := c.MultipartForm()
+	return multipartForm.File[name], err
+}
+
+func (c *Context) MultipartForm() (*multipart.Form, error) {
+	err := c.R.ParseMultipartForm(defaultMaxMemory)
+	return c.R.MultipartForm, err
+}
+
+func (c *Context) UploadedFile(file *multipart.FileHeader, dst string) error {
+	src, err := file.Open()
+	if err != nil {
+		return err
+	}
+	defer src.Close()
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+	_, err = io.Copy(out, src)
+	return err
+}
+
 func (c *Context) PathVariable(key string) any {
 	if v, ok := c.Params[key]; ok {
 		return v
@@ -55,6 +146,9 @@ func (c *Context) SetHeader(key string, value string) {
 }
 
 func (c *Context) JSON(status int, data ...any) error {
+	if len(data) == 1 {
+		return c.render(status, &render.JSON{Data: data[0]})
+	}
 	return c.render(status, &render.JSON{Data: data})
 }
 
@@ -104,7 +198,7 @@ func (c *Context) FileDownload(filename string) {
 }
 
 func (c *Context) FileDownloadWithFilename(filepath, filename string) {
-	if common.IsASCII(filename) {
+	if stringUtils.IsASCII(filename) {
 		c.W.Header().Set("Content-Disposition", `attachment; filename="`+filename+`"`)
 	} else {
 		c.W.Header().Set("Content-Disposition", `attachment; filename*=UTF-8''`+url.QueryEscape(filename))

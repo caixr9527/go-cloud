@@ -1,6 +1,8 @@
-package common
+package stringUtils
 
 import (
+	"fmt"
+	"reflect"
 	"strings"
 	"unicode"
 	"unsafe"
@@ -30,4 +32,30 @@ func StringToBytes(s string) []byte {
 			Cap int
 		}{s, len(s)},
 	))
+}
+
+func JoinStrings(data ...any) string {
+	var sb strings.Builder
+	for _, v := range data {
+		sb.WriteString(check(v))
+	}
+	return sb.String()
+}
+
+func check(v any) string {
+	of := reflect.ValueOf(v)
+	switch of.Kind() {
+	case reflect.String:
+		return v.(string)
+	default:
+		return fmt.Sprintf("%v", v)
+	}
+}
+
+func IsBlank(str string) bool {
+	return len(str) == 0
+}
+
+func IsNotBlank(str string) bool {
+	return !IsBlank(str)
 }

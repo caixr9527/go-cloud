@@ -74,7 +74,12 @@ func TestRun(t *testing.T) {
 	})
 
 	orderGroup.GET("/html", func(context *web.Context) {
-		context.ToHTML(200, "<h1>hello</h1>")
+		key := context.Query("key")
+		ids := context.QueryArray("ids")
+		fmt.Println(ids)
+		fmt.Println(context.QueryMap())
+		keyDefault := context.QueryDefault("keyDefault", "keyDefault")
+		context.ToHTML(200, "<h1>"+key+"</h1>\n"+"<h1>"+keyDefault+"</h1>\n")
 	})
 
 	orderGroup.GET("/fileDownload", func(context *web.Context) {
@@ -87,6 +92,24 @@ func TestRun(t *testing.T) {
 
 	orderGroup.GET("/fileFromFS", func(context *web.Context) {
 		context.FileFromFS("1.xlsx", http.Dir("tpl"))
+	})
+
+	orderGroup.POST("/postForm", func(context *web.Context) {
+		form := context.PostForm("id")
+		fmt.Println(form)
+		context.JSON(http.StatusOK, form, context.PostForm("name"), context.PostFormArray("id"))
+		//fmt.Println(context.PostFormArray("id"))
+		//context.JSON(http.StatusOK, context.PostFormMap())
+	})
+
+	orderGroup.POST("/postFormFile", func(context *web.Context) {
+		//file := context.FormFile("file")
+		files, _ := context.FormFiles("file")
+		for _, file := range files {
+			context.UploadedFile(file, "F:\\workspace\\personal\\upload\\"+file.Filename)
+		}
+
+		context.JSON(http.StatusOK)
 	})
 
 	engine.Run(":8111")
