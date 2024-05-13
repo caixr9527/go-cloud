@@ -9,8 +9,20 @@ import (
 	"testing"
 )
 
+type User struct {
+	Name      string   `xml:"name" json:"name" `
+	Age       int      `xml:"age" json:"age" required:"true" validate:"required,max=50,min=18"`
+	Addresses []string `json:"addresses" required:"true"`
+}
+
 func TestRun(t *testing.T) {
-	engine := cloud.Default()
+
+	options := &web.Options{
+		TemplateOps: web.TemplateOps{
+			TemplatePattern: "tpl/*.html",
+		},
+	}
+	engine := cloud.New(options)
 	engine.Use(func(context *web.Context) {
 		fmt.Println("Global before")
 		context.Next()
@@ -39,17 +51,31 @@ func TestRun(t *testing.T) {
 		}
 		context.JSON(http.StatusOK, r)
 	})
-	handler := handle.Group("/order")
-	handler.GET("/hello", func(context *web.Context) {
+	orderGroup := handle.Group("/order")
+	orderGroup.GET("/hello", func(context *web.Context) {
 		fmt.Println("order middle")
 	}, func(context *web.Context) {
 		context.JSON(http.StatusOK, "hello,go_cloud2")
 	})
-	handler.POST("/hello", func(context *web.Context) {
+	orderGroup.POST("/hello", func(context *web.Context) {
 		fmt.Println("post order middle")
 		context.Data = "GGGGG"
 	}, func(context *web.Context) {
 		context.JSON(http.StatusOK, "post hello,go_cloud2", context.Data)
 	})
+	orderGroup.GET("/template", func(context *web.Context) {
+		user := &User{Name: "caixiaorongtemplate"}
+		context.ParseTemplate("login.html", user)
+	})
+
+	orderGroup.GET("/htmlTemplate", func(context *web.Context) {
+		user := &User{Name: "caixiaoronghtmlTemplate"}
+		context.ParseTemplates("index.html", user, "tpl/index.html")
+	})
+
+	orderGroup.GET("/html", func(context *web.Context) {
+		context.ToHTML(200, "<h1>hello</h1>")
+	})
+
 	engine.Run(":8111")
 }

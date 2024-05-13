@@ -73,6 +73,7 @@ func (e *Engine) initContext(w http.ResponseWriter, r *http.Request, context *we
 	context.Params = params
 	context.Index = -1
 	context.Handlers = handlers
+	context.HTMLRender = e.ops.HTMLRender
 }
 
 func (e *Engine) Context() *web.Context {

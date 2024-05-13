@@ -20,7 +20,7 @@ type Context struct {
 	Keys       map[string]any
 	mu         sync.RWMutex
 	Data       any
-	hTMLRender render.HTMLRender
+	HTMLRender render.HTMLRender
 }
 
 // 进入对应路由的下一个方法
@@ -74,22 +74,22 @@ func (c *Context) render(statusCode int, r render.Render) error {
 	return err
 }
 
-func (c *Context) Template(name string, data any) error {
+func (c *Context) ParseTemplate(page string, data any) error {
 	return c.render(http.StatusOK, &render.HTML{
 		Data:       data,
-		Name:       name,
-		Template:   c.hTMLRender.Template,
+		Name:       page,
+		Template:   c.HTMLRender.Template,
 		IsTemplate: true,
 	})
 }
 
-func (c *Context) HTML(status int, html string) error {
+func (c *Context) ToHTML(status int, html string) error {
 	return c.render(status, &render.HTML{Data: html, IsTemplate: false})
 }
 
-func (c *Context) HTMLTemplate(name string, data any, filenames ...string) error {
+func (c *Context) ParseTemplates(page string, data any, filenames ...string) error {
 	c.W.Header().Set("Content-Type", "text/html; charset=utf-8")
-	t := template.New(name)
+	t := template.New(page)
 	t, err := t.ParseFiles(filenames...)
 	if err != nil {
 		return err
