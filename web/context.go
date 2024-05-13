@@ -1,9 +1,11 @@
 package web
 
 import (
+	"github.com/caixr9527/go-cloud/common"
 	"github.com/caixr9527/go-cloud/web/render"
 	"html/template"
 	"net/http"
+	"net/url"
 	"sync"
 )
 
@@ -95,4 +97,26 @@ func (c *Context) ParseTemplates(page string, data any, filenames ...string) err
 		return err
 	}
 	return t.Execute(c.W, data)
+}
+
+func (c *Context) FileDownload(filename string) {
+	http.ServeFile(c.W, c.R, filename)
+}
+
+func (c *Context) FileDownloadWithFilename(filepath, filename string) {
+	if common.IsASCII(filename) {
+		c.W.Header().Set("Content-Disposition", `attachment; filename="`+filename+`"`)
+	} else {
+		c.W.Header().Set("Content-Disposition", `attachment; filename*=UTF-8''`+url.QueryEscape(filename))
+	}
+	http.ServeFile(c.W, c.R, filepath)
+}
+
+func (c *Context) FileFromFS(filepath string, fs http.FileSystem) {
+	defer func(old string) {
+		c.R.URL.Path = old
+	}(c.R.URL.Path)
+
+	c.R.URL.Path = filepath
+	http.FileServer(fs).ServeHTTP(c.W, c.R)
 }

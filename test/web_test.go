@@ -77,5 +77,17 @@ func TestRun(t *testing.T) {
 		context.ToHTML(200, "<h1>hello</h1>")
 	})
 
+	orderGroup.GET("/fileDownload", func(context *web.Context) {
+		context.FileDownload("tpl/1.xlsx")
+	})
+
+	orderGroup.POST("/fileDownload", func(context *web.Context) {
+		context.FileDownloadWithFilename("tpl/1.xlsx", "aaa.xlsx")
+	})
+
+	orderGroup.GET("/fileFromFS", func(context *web.Context) {
+		context.FileFromFS("1.xlsx", http.Dir("tpl"))
+	})
+
 	engine.Run(":8111")
 }

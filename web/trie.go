@@ -25,8 +25,8 @@ type Trie struct {
 // 前缀树节点，比如路由为/tee/api/:type/qq，那么路由会拆解成tee，api，:type，qq，四个节点,
 
 type TreeNode struct {
-	PathUrl  map[string]*TreeNode //当前路由对应下一个路由节点的url为key，下一个路由节点为value
-	UrlValue string               // 当前路由url，例如api或qq
+	NextPath map[string]*TreeNode //当前路由对应下一个路由节点的url为key，下一个路由节点为value
+	CurPath  string               // 当前路由url，例如api或qq
 	// 当前路由为:type,:id等路径方式，存储参数，key为带有路由对应发放，
 	// value为带有路径参数的url
 	End      bool // 是否是路url由的重点
@@ -42,7 +42,7 @@ var routeMap = make(map[string][]Handler)
 
 // 前缀树路由根节点
 var root = &TreeNode{
-	PathUrl: make(map[string]*TreeNode),
+	NextPath: make(map[string]*TreeNode),
 }
 
 var eStart = GetNewTrie()
@@ -66,17 +66,17 @@ func (curNode *TreeNode) insert(routeStringSlice []string, index int, handlerInd
 	if []byte(routeStringSlice[index])[0] == ':' {
 		curV = "/"
 	}
-	v, ok := curNode.PathUrl[curV]
+	v, ok := curNode.NextPath[curV]
 	if ok {
 		curNode = v
 	} else {
 		newNode := &TreeNode{
-			PathUrl:  make(map[string]*TreeNode),
-			UrlValue: curV,
+			NextPath: make(map[string]*TreeNode),
+			CurPath:  curV,
 		}
 
 		// 上一个节点的map指向刚创建的节点
-		curNode.PathUrl[newNode.UrlValue] = newNode
+		curNode.NextPath[newNode.CurPath] = newNode
 		curNode = newNode
 	}
 	// 如果是路由参数，对应方法索引指向该路径参数
@@ -174,7 +174,7 @@ func (curNode *TreeNode) Match(routeStringSlice []string, index int, RouteParamM
 	}
 	// 匹配不带路径参数的路由
 	tempNode1, tempNode2 := curNode, curNode
-	v, ok := tempNode1.PathUrl[routeStringSlice[index]]
+	v, ok := tempNode1.NextPath[routeStringSlice[index]]
 	if ok {
 		tempNode1 = v
 		isMatch, handlerIndex, routeindex := tempNode1.Match(routeStringSlice, index+1, RouteParamMap, urlindex)
@@ -183,7 +183,7 @@ func (curNode *TreeNode) Match(routeStringSlice []string, index int, RouteParamM
 		}
 	}
 	// 匹配带路径参数的路由
-	v, ok = tempNode2.PathUrl["/"]
+	v, ok = tempNode2.NextPath["/"]
 	if ok {
 		urlindex++
 		tempNode2 = v
@@ -246,7 +246,7 @@ func (t *Trie) routeInit(root *TreeNode, routeSlice []string, mode bool) {
 
 	}
 
-	for k, v := range root.PathUrl {
+	for k, v := range root.NextPath {
 		if k != "/" {
 			t.routeInit(v, append(routeSlice, k), mode)
 		} else {
@@ -272,7 +272,7 @@ func (t *Trie) routeDelete(root *TreeNode, mode bool) {
 		return
 	}
 
-	for k, v := range root.PathUrl {
+	for k, v := range root.NextPath {
 		if k != "/" {
 			t.routeDelete(v, mode)
 		} else {

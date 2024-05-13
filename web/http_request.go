@@ -1,6 +1,9 @@
 package web
 
-import "net/http"
+import (
+	"net/http"
+	"strings"
+)
 
 type RequestHandler struct {
 	Trie    *Trie
@@ -21,37 +24,65 @@ func (rh *RequestHandler) Use(handlers ...Handler) {
 }
 
 func (rh *RequestHandler) GET(path string, handlers ...Handler) {
-	rh.newTrie.AddRoute(path+"/"+http.MethodGet, handlers...)
+	path = path + "/" + http.MethodGet
+	rh.check(path)
+	rh.newTrie.AddRoute(path, handlers...)
 }
 
 func (rh *RequestHandler) HEAD(path string, handlers ...Handler) {
-	rh.newTrie.AddRoute(path+"/"+http.MethodHead, handlers...)
+	path = path + "/" + http.MethodHead
+	rh.check(path)
+	rh.newTrie.AddRoute(path, handlers...)
 }
 
 func (rh *RequestHandler) POST(path string, handlers ...Handler) {
-	rh.newTrie.AddRoute(path+"/"+http.MethodPost, handlers...)
+	path = path + "/" + http.MethodPost
+	rh.check(path)
+	rh.newTrie.AddRoute(path, handlers...)
 }
 
 func (rh *RequestHandler) PUT(path string, handlers ...Handler) {
-	rh.newTrie.AddRoute(path+"/"+http.MethodPut, handlers...)
+	path = path + "/" + http.MethodPut
+	rh.check(path)
+	rh.newTrie.AddRoute(path, handlers...)
 }
 
 func (rh *RequestHandler) PATCH(path string, handlers ...Handler) {
-	rh.newTrie.AddRoute(path+"/"+http.MethodPatch, handlers...)
+	path = path + "/" + http.MethodPatch
+	rh.check(path)
+	rh.newTrie.AddRoute(path, handlers...)
 }
 
 func (rh *RequestHandler) DELETE(path string, handlers ...Handler) {
-	rh.newTrie.AddRoute(path+"/"+http.MethodDelete, handlers...)
+	path = path + "/" + http.MethodDelete
+	rh.check(path)
+	rh.newTrie.AddRoute(path, handlers...)
 }
 
 func (rh *RequestHandler) CONNECT(path string, handlers ...Handler) {
-	rh.newTrie.AddRoute(path+"/"+http.MethodConnect, handlers...)
+	path = path + "/" + http.MethodConnect
+	rh.check(path)
+	rh.newTrie.AddRoute(path, handlers...)
 }
 
 func (rh *RequestHandler) OPTIONS(path string, handlers ...Handler) {
-	rh.newTrie.AddRoute(path+"/"+http.MethodOptions, handlers...)
+	path = path + "/" + http.MethodOptions
+	rh.check(path)
+	rh.newTrie.AddRoute(path, handlers...)
 }
 
 func (rh *RequestHandler) TRACE(path string, handlers ...Handler) {
-	rh.newTrie.AddRoute(path+"/"+http.MethodTrace, handlers...)
+	path = path + "/" + http.MethodTrace
+	rh.check(path)
+	rh.newTrie.AddRoute(path, handlers...)
+}
+
+func (rh *RequestHandler) check(path string) {
+	index := strings.LastIndex(path, "/")
+	realPath := path[0:index]
+	method := path[index+1:]
+	prePath := "/" + rh.newTrie.CurNode.CurPath
+	if search, _, _ := rh.Trie.GetEstart().Search(prePath + path); search {
+		panic("Duplicate routing [" + prePath + realPath + "], method [" + method + "]")
+	}
 }
