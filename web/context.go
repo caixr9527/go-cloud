@@ -3,6 +3,7 @@ package web
 import (
 	"errors"
 	"github.com/caixr9527/go-cloud/common/utils/stringUtils"
+	"github.com/caixr9527/go-cloud/web/binding"
 	"github.com/caixr9527/go-cloud/web/render"
 	"html/template"
 	"io"
@@ -213,4 +214,63 @@ func (c *Context) FileFromFS(filepath string, fs http.FileSystem) {
 
 	c.R.URL.Path = filepath
 	http.FileServer(fs).ServeHTTP(c.W, c.R)
+}
+
+func (c *Context) Bind(obj any) error {
+	contentType := c.R.Header.Get("Content-Type")
+	switch contentType {
+	case binding.MIMEJSON:
+		return c.BindJSON(obj)
+	case binding.MIMEXML:
+		return c.BindXML(obj)
+	case binding.MIMEXML2:
+		return c.BindXML2(obj)
+	case binding.MIMEPLAIN:
+		return c.BindPlain(obj)
+	case binding.MIMEPOSTFORM:
+		return c.BindFormPost(obj)
+	case binding.MIMEMultipartPOSTForm:
+		return c.BindMultipartPostForm(obj)
+	}
+	return errors.New("unknown content-type : " + contentType)
+}
+
+func (c *Context) BindJSON(obj any) error {
+	return binding.JSON.Bind(c.R, obj)
+}
+
+func (c *Context) BindXML(obj any) error {
+	return binding.XML.Bind(c.R, obj)
+}
+
+func (c *Context) BindXML2(obj any) error {
+	// 转化
+	return binding.XML.Bind(c.R, obj)
+}
+
+func (c *Context) BindQuery(obj any) error {
+	return binding.QUERY.Bind(c.R, obj)
+}
+
+func (c *Context) BindUri(obj any) error {
+	return binding.URI.Bind(c.R, obj)
+}
+func (c *Context) BindHeader(obj any) error {
+	return binding.HEADER.Bind(c.R, obj)
+}
+
+func (c *Context) BindYAML(obj any) error {
+	return binding.YAML.Bind(c.R, obj)
+}
+
+func (c *Context) BindPlain(obj any) error {
+	return nil
+}
+
+func (c *Context) BindFormPost(obj any) error {
+	return binding.FORM_POST.Bind(c.R, obj)
+}
+
+func (c *Context) BindMultipartPostForm(obj any) error {
+	return binding.FORM_MULTIPART.Bind(c.R, obj)
 }
