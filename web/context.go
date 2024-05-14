@@ -253,7 +253,9 @@ func (c *Context) BindQuery(obj any) error {
 }
 
 func (c *Context) BindUri(obj any) error {
-	return binding.URI.Bind(c.R, obj)
+	uri := binding.URI
+	uri.Params = c.Params
+	return uri.Bind(c.R, obj)
 }
 func (c *Context) BindHeader(obj any) error {
 	return binding.HEADER.Bind(c.R, obj)
