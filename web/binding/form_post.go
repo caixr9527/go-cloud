@@ -1,7 +1,6 @@
 package binding
 
 import (
-	"github.com/caixr9527/go-cloud/web/validator"
 	"net/http"
 )
 
@@ -10,5 +9,5 @@ type formPostBinding struct {
 
 func (b formPostBinding) Bind(r *http.Request, obj any) error {
 
-	return validator.New().Struct(obj)
+	return validate(obj)
 }

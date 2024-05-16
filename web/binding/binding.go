@@ -1,6 +1,11 @@
 package binding
 
-import "net/http"
+import (
+	"errors"
+	"github.com/caixr9527/go-cloud/web/validator"
+	"net/http"
+	"reflect"
+)
 
 type Binding interface {
 	Bind(r *http.Request, obj any) error
@@ -33,3 +38,18 @@ var (
 	URI            = uriBinding{}
 	YAML           = yamlBinding{}
 )
+
+func checkBody(body any) error {
+	if body == nil {
+		return errors.New("invalid request")
+	}
+	return nil
+}
+
+func validate(obj any) error {
+	typeOf := reflect.TypeOf(obj)
+	if typeOf.Kind() == reflect.Struct {
+		return validator.New().Struct(obj)
+	}
+	return nil
+}

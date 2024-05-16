@@ -2,7 +2,6 @@ package binding
 
 import (
 	"encoding/json"
-	"github.com/caixr9527/go-cloud/web/validator"
 	"net/http"
 	"reflect"
 )
@@ -21,5 +20,5 @@ func (b uriBinding) Bind(r *http.Request, obj any) error {
 	}
 	marshal, _ := json.Marshal(res)
 	json.Unmarshal(marshal, obj)
-	return validator.New().Struct(obj)
+	return validate(obj)
 }

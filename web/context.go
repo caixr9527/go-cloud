@@ -32,6 +32,7 @@ type Context struct {
 	mu         sync.RWMutex
 	Data       any
 	HTMLRender render.HTMLRender
+	FormMap    map[string]any
 }
 
 // 进入对应路由的下一个方法
@@ -64,27 +65,24 @@ func (c *Context) QueryMap() map[string][]string {
 	return c.R.URL.Query()
 }
 
-func (c *Context) PostForm(key string) string {
-	c.parseMultipartForm()
-	return c.R.PostFormValue(key)
+func (c *Context) PostFormArray(key string) (any, error) {
+	if res, ok := c.FormMap[key]; ok {
+		return res, nil
+	}
+	if err := c.Bind(&c.FormMap); err != nil {
+		return nil, err
+	}
+	return c.FormMap[key], nil
 }
 
-func (c *Context) PostFormArray(key string) []string {
-	c.parseMultipartForm()
-	value := c.R.PostFormValue(key)
-	if stringUtils.IsBlank(value) {
-		return nil
+func (c *Context) PostForm(key string) (any, error) {
+	if res, ok := c.FormMap[key]; ok {
+		return res.([]any)[0], nil
 	}
-	result := make([]string, 0)
-	for _, v := range strings.Split(strings.ReplaceAll(strings.ReplaceAll(value, "[", ""), "]", ""), ",") {
-		result = append(result, strings.TrimSpace(strings.ReplaceAll(v, "\"", "")))
+	if err := c.Bind(&c.FormMap); err != nil {
+		return nil, err
 	}
-	return result
-}
-
-func (c *Context) PostFormMap() map[string][]string {
-	c.parseMultipartForm()
-	return c.R.PostForm
+	return c.FormMap[key].([]any)[0], nil
 }
 
 func (c *Context) parseMultipartForm() {
@@ -218,6 +216,7 @@ func (c *Context) FileFromFS(filepath string, fs http.FileSystem) {
 
 func (c *Context) Bind(obj any) error {
 	contentType := c.R.Header.Get("Content-Type")
+	contentType = strings.Split(contentType, ";")[0]
 	switch contentType {
 	case binding.MIMEJSON:
 		return c.BindJSON(obj)

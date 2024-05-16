@@ -74,6 +74,7 @@ func (e *Engine) initContext(w http.ResponseWriter, r *http.Request, context *we
 	context.Index = -1
 	context.Handlers = handlers
 	context.HTMLRender = e.ops.HTMLRender
+	context.FormMap = make(map[string]any)
 }
 
 func (e *Engine) Context() *web.Context {

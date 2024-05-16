@@ -1,7 +1,7 @@
 package binding
 
 import (
-	"github.com/caixr9527/go-cloud/web/validator"
+	"github.com/vmihailenco/msgpack/v5"
 	"net/http"
 )
 
@@ -9,6 +9,14 @@ type msgPackBinding struct {
 }
 
 func (b msgPackBinding) Bind(r *http.Request, obj any) error {
-
-	return validator.New().Struct(obj)
+	body := r.Body
+	if err := checkBody(body); err != nil {
+		return err
+	}
+	decoder := msgpack.NewDecoder(body)
+	err := decoder.Decode(obj)
+	if err != nil {
+		return err
+	}
+	return validate(obj)
 }

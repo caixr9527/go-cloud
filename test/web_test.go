@@ -5,6 +5,7 @@ import (
 	"github.com/caixr9527/go-cloud"
 	"github.com/caixr9527/go-cloud/common"
 	"github.com/caixr9527/go-cloud/web"
+	"log"
 	"net/http"
 	"testing"
 )
@@ -95,9 +96,37 @@ func TestRun(t *testing.T) {
 	})
 
 	orderGroup.POST("/postForm", func(context *web.Context) {
-		form := context.PostForm("id")
-		fmt.Println(form)
-		context.JSON(http.StatusOK, form, context.PostForm("name"), context.PostFormArray("id"))
+		id, err := context.PostFormArray("id")
+		if err != nil {
+			log.Println(err)
+		}
+		name, err := context.PostFormArray("name")
+		if err != nil {
+			log.Println(err)
+		}
+		age, err := context.PostForm("age")
+		if err != nil {
+			log.Println(err)
+		}
+		context.JSON(http.StatusOK, id, name, age)
+		//fmt.Println(context.PostFormArray("id"))
+		//context.JSON(http.StatusOK, context.PostFormMap())
+	})
+
+	orderGroup.POST("/postForm2", func(context *web.Context) {
+		id, err := context.PostFormArray("id")
+		if err != nil {
+			log.Println(err)
+		}
+		name, err := context.PostFormArray("name")
+		if err != nil {
+			log.Println(err)
+		}
+		age, err := context.PostForm("age")
+		if err != nil {
+			log.Println(err)
+		}
+		context.JSON(http.StatusOK, id, name, age)
 		//fmt.Println(context.PostFormArray("id"))
 		//context.JSON(http.StatusOK, context.PostFormMap())
 	})
