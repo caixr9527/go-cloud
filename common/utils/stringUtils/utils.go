@@ -3,6 +3,7 @@ package stringUtils
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 	"unicode"
 	"unsafe"
@@ -58,4 +59,9 @@ func IsBlank(str string) bool {
 
 func IsNotBlank(str string) bool {
 	return !IsBlank(str)
+}
+
+func IsNumeric(str string) bool {
+	_, err := strconv.Atoi(str)
+	return err == nil
 }

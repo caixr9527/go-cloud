@@ -12,8 +12,8 @@ import (
 
 type User struct {
 	Name      string   `xml:"name" json:"name" `
-	Age       int      `xml:"age" json:"age" required:"true" validate:"required,max=50,min=18"`
-	Addresses []string `json:"addresses" required:"true"`
+	Age       int      `xml:"age" json:"age" validate:"required,max=50,min=18"`
+	Addresses []string `xml:"addresses" json:"addresses"`
 }
 
 func TestRun(t *testing.T) {
@@ -139,6 +139,17 @@ func TestRun(t *testing.T) {
 		}
 
 		context.JSON(http.StatusOK)
+	})
+
+	orderGroup.POST("/bind", func(context *web.Context) {
+		user := &User{}
+		err := context.Bind(user)
+		if err != nil {
+			log.Println(err)
+			context.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
+		context.JSON(http.StatusOK, user)
 	})
 
 	engine.Run(":8111")

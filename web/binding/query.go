@@ -1,7 +1,8 @@
 package binding
 
 import (
-	"encoding/json"
+	jsoniter "github.com/json-iterator/go"
+	"github.com/json-iterator/go/extra"
 	"net/http"
 	"reflect"
 )
@@ -17,7 +18,14 @@ func (b QueryBinding) Bind(r *http.Request, obj any) error {
 		name := field.Name
 		res[name] = r.URL.Query().Get(name)
 	}
-	marshal, _ := json.Marshal(res)
-	json.Unmarshal(marshal, obj)
+	extra.RegisterFuzzyDecoders()
+	var marshal []byte
+	var err error
+	if marshal, err = jsoniter.Marshal(res); err != nil {
+		return err
+	}
+	if err = jsoniter.Unmarshal(marshal, obj); err != nil {
+		return err
+	}
 	return validate(obj)
 }

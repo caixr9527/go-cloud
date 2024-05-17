@@ -3,9 +3,15 @@ package binding
 import (
 	"errors"
 	"github.com/caixr9527/go-cloud/web/validator"
+	jsoniter "github.com/json-iterator/go"
+	"github.com/json-iterator/go/extra"
 	"net/http"
+	"net/url"
 	"reflect"
+	"strings"
 )
+
+const defaultMaxMemory = 32 << 20
 
 type Binding interface {
 	Bind(r *http.Request, obj any) error
@@ -28,7 +34,6 @@ const (
 var (
 	JSON           = jsonBinding{}
 	XML            = xmlBinding{}
-	FORM           = formBinding{}
 	FORM_MULTIPART = formMultipartBinding{}
 	FORM_POST      = formPostBinding{}
 	HEADER         = headerBinding{}
@@ -47,9 +52,40 @@ func checkBody(body any) error {
 }
 
 func validate(obj any) error {
-	typeOf := reflect.TypeOf(obj)
-	if typeOf.Kind() == reflect.Struct {
+	val := reflect.ValueOf(obj)
+	if val.Kind() == reflect.Ptr && !val.IsNil() {
+		val = val.Elem()
+	}
+	if val.Kind() == reflect.Struct {
 		return validator.New().Struct(obj)
+	}
+	return nil
+}
+func parseMultipartForm(r *http.Request) error {
+	if err := r.ParseMultipartForm(defaultMaxMemory); err != nil && !errors.Is(err, http.ErrNotMultipart) {
+		return err
+	}
+	return nil
+}
+
+func mapping(datas url.Values, obj any) error {
+	dataMap := make(map[string]any)
+	for k, v := range datas {
+		s := v[0]
+		if strings.Contains(s, ",") {
+			dataMap[k] = strings.Split(s, ",")
+		} else {
+			dataMap[k] = s
+		}
+	}
+	extra.RegisterFuzzyDecoders()
+	var marshal []byte
+	var err error
+	if marshal, err = jsoniter.Marshal(dataMap); err != nil {
+		return err
+	}
+	if err := jsoniter.Unmarshal(marshal, obj); err != nil {
+		return err
 	}
 	return nil
 }

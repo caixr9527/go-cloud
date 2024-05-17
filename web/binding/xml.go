@@ -14,8 +14,7 @@ func (b xmlBinding) Bind(r *http.Request, obj any) error {
 		return err
 	}
 	decoder := xml.NewDecoder(body)
-	err := decoder.Decode(obj)
-	if err != nil {
+	if err := decoder.Decode(obj); err != nil {
 		return err
 	}
 	return validate(obj)

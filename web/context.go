@@ -230,6 +230,9 @@ func (c *Context) Bind(obj any) error {
 		return c.BindFormPost(obj)
 	case binding.MIMEMultipartPOSTForm:
 		return c.BindMultipartPostForm(obj)
+	case binding.MIMEMSGPACK2:
+	case binding.MIMEMSGPACK:
+		return c.BindMsgPack(obj)
 	}
 	return errors.New("unknown content-type : " + contentType)
 }
@@ -265,7 +268,7 @@ func (c *Context) BindYAML(obj any) error {
 }
 
 func (c *Context) BindPlain(obj any) error {
-	return nil
+	return binding.JSON.Bind(c.R, obj)
 }
 
 func (c *Context) BindFormPost(obj any) error {
@@ -274,4 +277,8 @@ func (c *Context) BindFormPost(obj any) error {
 
 func (c *Context) BindMultipartPostForm(obj any) error {
 	return binding.FORM_MULTIPART.Bind(c.R, obj)
+}
+
+func (c *Context) BindMsgPack(obj any) error {
+	return binding.MSG_PACK.Bind(c.R, obj)
 }

@@ -1,7 +1,8 @@
 package binding
 
 import (
-	"encoding/json"
+	jsoniter "github.com/json-iterator/go"
+	"github.com/json-iterator/go/extra"
 	"net/http"
 )
 
@@ -14,12 +15,12 @@ func (b jsonBinding) Bind(r *http.Request, obj any) error {
 	if err := checkBody(body); err != nil {
 		return err
 	}
-	decoder := json.NewDecoder(body)
+	extra.RegisterFuzzyDecoders()
+	decoder := jsoniter.NewDecoder(body)
 	if b.DisallowUnknownFields {
 		decoder.DisallowUnknownFields()
 	}
-	err := decoder.Decode(obj)
-	if err != nil {
+	if err := decoder.Decode(obj); err != nil {
 		return err
 	}
 	return validate(obj)
