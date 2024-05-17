@@ -96,11 +96,11 @@ func TestRun(t *testing.T) {
 	})
 
 	orderGroup.POST("/postForm", func(context *web.Context) {
-		id, err := context.PostFormArray("id")
+		id, err := context.PostForm("id")
 		if err != nil {
 			log.Println(err)
 		}
-		name, err := context.PostFormArray("name")
+		name, err := context.PostForm("name")
 		if err != nil {
 			log.Println(err)
 		}
@@ -114,11 +114,11 @@ func TestRun(t *testing.T) {
 	})
 
 	orderGroup.POST("/postForm2", func(context *web.Context) {
-		id, err := context.PostFormArray("id")
+		id, err := context.PostForm("id")
 		if err != nil {
 			log.Println(err)
 		}
-		name, err := context.PostFormArray("name")
+		name, err := context.PostForm("name")
 		if err != nil {
 			log.Println(err)
 		}
@@ -143,7 +143,20 @@ func TestRun(t *testing.T) {
 
 	orderGroup.POST("/bind", func(context *web.Context) {
 		user := &User{}
+		//var str string
 		err := context.Bind(user)
+		if err != nil {
+			log.Println(err)
+			context.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
+		context.JSON(http.StatusOK, user)
+	})
+
+	orderGroup.GET("/bind2", func(context *web.Context) {
+		user := &User{}
+		//var str string
+		err := context.BindQuery(user)
 		if err != nil {
 			log.Println(err)
 			context.JSON(http.StatusInternalServerError, err.Error())

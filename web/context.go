@@ -65,7 +65,7 @@ func (c *Context) QueryMap() map[string][]string {
 	return c.R.URL.Query()
 }
 
-func (c *Context) PostFormArray(key string) (any, error) {
+func (c *Context) PostForm(key string) (any, error) {
 	if res, ok := c.FormMap[key]; ok {
 		return res, nil
 	}
@@ -73,16 +73,6 @@ func (c *Context) PostFormArray(key string) (any, error) {
 		return nil, err
 	}
 	return c.FormMap[key], nil
-}
-
-func (c *Context) PostForm(key string) (any, error) {
-	if res, ok := c.FormMap[key]; ok {
-		return res.([]any)[0], nil
-	}
-	if err := c.Bind(&c.FormMap); err != nil {
-		return nil, err
-	}
-	return c.FormMap[key].([]any)[0], nil
 }
 
 func (c *Context) parseMultipartForm() {
@@ -268,7 +258,7 @@ func (c *Context) BindYAML(obj any) error {
 }
 
 func (c *Context) BindPlain(obj any) error {
-	return binding.JSON.Bind(c.R, obj)
+	return binding.PLAIN.Bind(c.R, obj)
 }
 
 func (c *Context) BindFormPost(obj any) error {

@@ -15,8 +15,8 @@ func (b formPostBinding) Bind(r *http.Request, obj any) error {
 	if err != nil {
 		return err
 	}
-	datas, err := url.ParseQuery(string(body))
-	if err != nil {
+	var datas url.Values
+	if datas, err = url.ParseQuery(string(body)); err != nil {
 		return err
 	}
 	if err = mapping(datas, obj); err != nil {

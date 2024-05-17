@@ -6,7 +6,6 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	"github.com/json-iterator/go/extra"
 	"net/http"
-	"net/url"
 	"reflect"
 	"strings"
 )
@@ -42,6 +41,7 @@ var (
 	QUERY          = QueryBinding{}
 	URI            = uriBinding{}
 	YAML           = yamlBinding{}
+	PLAIN          = plainBinding{}
 )
 
 func checkBody(body any) error {
@@ -53,7 +53,7 @@ func checkBody(body any) error {
 
 func validate(obj any) error {
 	val := reflect.ValueOf(obj)
-	if val.Kind() == reflect.Ptr && !val.IsNil() {
+	for val.Kind() == reflect.Ptr && !val.IsNil() {
 		val = val.Elem()
 	}
 	if val.Kind() == reflect.Struct {
@@ -68,24 +68,30 @@ func parseMultipartForm(r *http.Request) error {
 	return nil
 }
 
-func mapping(datas url.Values, obj any) error {
+func mapping(datas map[string][]string, obj any) error {
 	dataMap := make(map[string]any)
 	for k, v := range datas {
 		s := v[0]
 		if strings.Contains(s, ",") {
 			dataMap[k] = strings.Split(s, ",")
+		} else if strings.Contains(s, ";") {
+			dataMap[k] = strings.Split(s, ";")
 		} else {
 			dataMap[k] = s
 		}
 	}
+	return binding(dataMap, obj)
+}
+
+func binding(dataMap map[string]any, obj any) error {
 	extra.RegisterFuzzyDecoders()
 	var marshal []byte
 	var err error
 	if marshal, err = jsoniter.Marshal(dataMap); err != nil {
 		return err
 	}
-	if err := jsoniter.Unmarshal(marshal, obj); err != nil {
+	if err = jsoniter.Unmarshal(marshal, obj); err != nil {
 		return err
 	}
-	return nil
+	return err
 }
