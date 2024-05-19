@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"testing"
+	"time"
 )
 
 type User struct {
@@ -41,9 +42,26 @@ func TestRun(t *testing.T) {
 	}, func(context *web.Context) {
 		fmt.Println("user middle1")
 	}, func(context *web.Context) {
+		time.Sleep(time.Duration(10) * time.Second)
 		fmt.Println("good")
 		data := make([]any, 0)
 		data = append(data, context.PathVariable("id"), context.PathVariable("name"), "hello,go_cloud")
+		r := &common.R{
+			Success: true,
+			Code:    http.StatusOK,
+			Data:    data,
+			Msg:     "",
+		}
+		context.JSON(http.StatusOK, r)
+	})
+	group.GET("/hello2/:locationId/:username", func(context *web.Context) {
+		fmt.Println("user middle")
+	}, func(context *web.Context) {
+		fmt.Println("user middle1")
+	}, func(context *web.Context) {
+		fmt.Println("good")
+		data := make([]any, 0)
+		data = append(data, context.PathVariable("locationId"), context.PathVariable("username"), "hello,go_cloud")
 		r := &common.R{
 			Success: true,
 			Code:    http.StatusOK,
@@ -157,6 +175,18 @@ func TestRun(t *testing.T) {
 		user := &User{}
 		//var str string
 		err := context.BindQuery(user)
+		if err != nil {
+			log.Println(err)
+			context.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
+		context.JSON(http.StatusOK, user)
+	})
+
+	orderGroup.GET("/bind3", func(context *web.Context) {
+		user := &User{}
+		//var str string
+		err := context.Bind(user)
 		if err != nil {
 			log.Println(err)
 			context.JSON(http.StatusInternalServerError, err.Error())
