@@ -89,6 +89,13 @@ func (e *Engine) Run(addr string) {
 		ReadTimeout:  0,
 		WriteTimeout: 0,
 	}
+	fmt.Println("   _____  ____     _____ _      ____  _    _ _____  ")
+	fmt.Println("  / ____|/ __ \\   / ____| |    / __ \\| |  | |  __ \\ ")
+	fmt.Println(" | |  __| |  | | | |    | |   | |  | | |  | | |  | |")
+	fmt.Println(" | | |_ | |  | | | |    | |   | |  | | |  | | |  | |")
+	fmt.Println(" | |__| | |__| | | |____| |___| |__| | |__| | |__| |")
+	fmt.Println("  \\_____|\\____/   \\_____|______\\____/ \\____/|_____/ V1.0")
+	fmt.Println("   start on port" + addr)
 	if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("listen: %s\n", err)
 	}
