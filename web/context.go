@@ -236,7 +236,6 @@ func (c *Context) BindXML(obj any) error {
 }
 
 func (c *Context) BindXML2(obj any) error {
-	// 转化
 	return binding.XML.Bind(c.R, obj)
 }
 

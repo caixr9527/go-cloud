@@ -195,5 +195,18 @@ func TestRun(t *testing.T) {
 		context.JSON(http.StatusOK, user)
 	})
 
+	orderGroup.GET("/bind4", func(context *web.Context) {
+		//user := &User{}
+		users := make([]User, 0)
+		//var str string
+		err := context.Bind(&users)
+		if err != nil {
+			log.Println(err)
+			context.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
+		context.JSON(http.StatusOK, users)
+	})
+
 	engine.Run(":8111")
 }
