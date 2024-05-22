@@ -3,6 +3,7 @@ package cloud
 import (
 	"errors"
 	"fmt"
+	logger "github.com/caixr9527/go-cloud/log"
 	"github.com/caixr9527/go-cloud/web"
 	"github.com/caixr9527/go-cloud/web/render"
 	"html/template"
@@ -96,6 +97,7 @@ func (e *Engine) Run(addr string) {
 	fmt.Println(" | |__| | |__| | | |____| |___| |__| | |__| | |__| |")
 	fmt.Println("  \\_____|\\____/   \\_____|______\\____/ \\____/|_____/ " + Version)
 	fmt.Println(" ::start on port" + addr)
+	logger.Info("go-cloud start success, start on port" + addr)
 	if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("listen: %s\n", err)
 	}

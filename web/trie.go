@@ -47,10 +47,6 @@ var root = &TreeNode{
 
 var eStart = GetNewTrie()
 
-func Default() *Trie {
-	return eStart
-}
-
 func (t *Trie) GetRouteMap() map[string][]Handler {
 	return routeMap
 }
@@ -302,16 +298,4 @@ func CallBackTreeNode(e *Trie) ([]Handler, []string) {
 	handlers = append(newHandlers, handlers...)
 	strArr = append(newPathParam, strArr...)
 	return handlers, strArr
-}
-
-func (t *Trie) GET(routeName string, handlers ...Handler) {
-	t.AddRoute(routeName+"/GET", handlers...)
-}
-
-func (t *Trie) POST(routeName string, handlers ...Handler) {
-	t.AddRoute(routeName+"/POST", handlers...)
-}
-
-func (t *Trie) DELETE(routeName string, handlers ...Handler) {
-	t.AddRoute(routeName+"/DELETE", handlers...)
 }

@@ -12,36 +12,32 @@ import (
 	"time"
 )
 
-var Log *logger
-
-type logger struct {
-	log *zap.Logger
-}
+var log *zap.Logger
 
 func Info(msg string, fields ...zap.Field) {
-	defer Log.log.Sync()
-	Log.log.Info(msg, fields...)
+	defer log.Sync()
+	log.Info(msg, fields...)
 }
 
 func Error(msg string, fields ...zap.Field) {
-	defer Log.log.Sync()
-	Log.log.Error(msg, fields...)
+	defer log.Sync()
+	log.Error(msg, fields...)
 }
 
 func Debug(msg string, fields ...zap.Field) {
-	defer Log.log.Sync()
-	Log.log.Debug(msg, fields...)
+	defer log.Sync()
+	log.Debug(msg, fields...)
 }
 func Warn(msg string, fields ...zap.Field) {
-	defer Log.log.Sync()
-	Log.log.Warn(msg, fields...)
+	defer log.Sync()
+	log.Warn(msg, fields...)
 }
 
 func init() {
-	InitLogger()
+	initLogger()
 }
 
-func InitLogger() {
+func initLogger() {
 	// 此处的配置是从我的项目配置文件读取的，读者可以根据自己的情况来设置
 	//logPath := config.Cfg.Section("app").Key("logPath").String()
 	//name := config.Cfg.Section("app").Key("name").String()
@@ -50,35 +46,14 @@ func InitLogger() {
 	//	debug = false
 	//}
 	logPath := "./logs/"
-	//name := "logTest"
-	debug := true
-	infoHook := lumberjack.Logger{
-		Filename:   logPath + "info.log", // 日志文件路径
-		MaxSize:    128,                  // 每个日志文件保存的大小 单位:M
-		MaxAge:     7,                    // 文件最多保存多少天
-		MaxBackups: 30,                   // 日志文件最多保存多少个备份
-		Compress:   true,                 // 是否压缩
-	}
-	debugHook := lumberjack.Logger{
-		Filename:   logPath + "debug.log", // 日志文件路径
-		MaxSize:    128,                   // 每个日志文件保存的大小 单位:M
-		MaxAge:     7,                     // 文件最多保存多少天
-		MaxBackups: 30,                    // 日志文件最多保存多少个备份
-		Compress:   true,                  // 是否压缩
-	}
-	warnHook := lumberjack.Logger{
-		Filename:   logPath + "warn.log", // 日志文件路径
-		MaxSize:    128,                  // 每个日志文件保存的大小 单位:M
-		MaxAge:     7,                    // 文件最多保存多少天
-		MaxBackups: 30,                   // 日志文件最多保存多少个备份
-		Compress:   true,                 // 是否压缩
-	}
-	errorHook := lumberjack.Logger{
-		Filename:   logPath + "error.log", // 日志文件路径
-		MaxSize:    128,                   // 每个日志文件保存的大小 单位:M
-		MaxAge:     7,                     // 文件最多保存多少天
-		MaxBackups: 30,                    // 日志文件最多保存多少个备份
-		Compress:   true,                  // 是否压缩
+	loggerLevel := "debug"
+
+	hook := lumberjack.Logger{
+		Filename:   logPath + loggerLevel + ".log", // 日志文件路径
+		MaxSize:    128,                            // 每个日志文件保存的大小 单位:M
+		MaxAge:     7,                              // 文件最多保存多少天
+		MaxBackups: 30,                             // 日志文件最多保存多少个备份
+		Compress:   true,                           // 是否压缩
 	}
 	encoderConfig := zapcore.EncoderConfig{
 		MessageKey:     "msg",
@@ -94,14 +69,24 @@ func InitLogger() {
 		EncodeCaller:   zapcore.ShortCallerEncoder, // 短路径编码器
 		EncodeName:     zapcore.FullNameEncoder,
 	}
+	// 设置日志级别
+	atomicLevel := zap.NewAtomicLevel()
+	atomicLevel.SetLevel(zap.DebugLevel)
+	if loggerLevel == "debug" {
+		atomicLevel.SetLevel(zap.DebugLevel)
+	} else if loggerLevel == "info" {
+		atomicLevel.SetLevel(zap.InfoLevel)
+	} else if loggerLevel == "warn" {
+		atomicLevel.SetLevel(zap.WarnLevel)
+	} else if loggerLevel == "error" {
+		atomicLevel.SetLevel(zap.ErrorLevel)
+	}
+
 	consoleEncoder := zapcore.NewConsoleEncoder(encoderConfig)
 	cores := make([]zapcore.Core, 0)
-	cores = append(cores, zapcore.NewCore(consoleEncoder, zapcore.AddSync(&infoHook), zap.InfoLevel),
-		zapcore.NewCore(consoleEncoder, zapcore.AddSync(&errorHook), zap.ErrorLevel),
-		zapcore.NewCore(consoleEncoder, zapcore.AddSync(&debugHook), zap.DebugLevel),
-		zapcore.NewCore(consoleEncoder, zapcore.AddSync(&warnHook), zap.WarnLevel))
-	if debug {
-		cores = append(cores, zapcore.NewCore(consoleEncoder, zapcore.AddSync(os.Stdout), zap.DebugLevel))
+	cores = append(cores, zapcore.NewCore(consoleEncoder, zapcore.AddSync(&hook), atomicLevel))
+	if loggerLevel == "debug" {
+		cores = append(cores, zapcore.NewCore(consoleEncoder, zapcore.AddSync(os.Stdout), atomicLevel))
 	}
 	core := zapcore.NewTee(cores...)
 
@@ -110,7 +95,7 @@ func InitLogger() {
 	// 开启文件及行号
 	development := zap.Development()
 	// 构造日志
-	Log = &logger{log: zap.New(core, caller, development)}
+	log = zap.New(core, caller, development)
 }
 
 func Logging(context *web.Context) {
