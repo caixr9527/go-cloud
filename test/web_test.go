@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/caixr9527/go-cloud"
 	"github.com/caixr9527/go-cloud/common"
+	logger "github.com/caixr9527/go-cloud/log"
 	"github.com/caixr9527/go-cloud/web"
 	"log"
 	"net/http"
@@ -25,11 +26,7 @@ func TestRun(t *testing.T) {
 		},
 	}
 	engine := cloud.New(options)
-	engine.Use(func(context *web.Context) {
-		fmt.Println("Global before")
-		context.Next()
-		fmt.Println("Global after")
-	})
+	engine.Use(logger.Logging)
 	handle := engine.Handle()
 	group := handle.Group("user")
 	group.Use(func(context *web.Context) {
@@ -205,6 +202,10 @@ func TestRun(t *testing.T) {
 			context.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
+		logger.Debug("Debug")
+		logger.Info("Info")
+		logger.Warn("Warn")
+		logger.Error("Error")
 		context.JSON(http.StatusOK, users)
 	})
 
