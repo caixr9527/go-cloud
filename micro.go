@@ -91,6 +91,22 @@ func (e *Engine) Run(addr string) {
 		ReadTimeout:  0,
 		WriteTimeout: 0,
 	}
+	printLog(addr)
+	if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		log.Fatalf("listen: %s\n", err)
+	}
+}
+
+func (e *Engine) RunTLS(addr, certFile, keyFile string) {
+	e.trie.Initialization()
+	printLog(addr)
+	err := http.ListenAndServeTLS(addr, certFile, keyFile, e)
+	if err != nil {
+		log.Fatalf("listen: %s\n", err)
+	}
+}
+
+func printLog(addr string) {
 	fmt.Println("   _____  ____     _____ _      ____  _    _ _____  ")
 	fmt.Println("  / ____|/ __ \\   / ____| |    / __ \\| |  | |  __ \\ ")
 	fmt.Println(" | |  __| |  | | | |    | |   | |  | | |  | | |  | |")
@@ -99,9 +115,6 @@ func (e *Engine) Run(addr string) {
 	fmt.Println("  \\_____|\\____/   \\_____|______\\____/ \\____/|_____/ " + Version)
 	fmt.Println(" ::start on port" + addr)
 	logger.Info("go-cloud start success, start on port" + addr)
-	if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		log.Fatalf("listen: %s\n", err)
-	}
 }
 
 func (e *Engine) LoadTemplate(ops ...web.TemplateOps) {

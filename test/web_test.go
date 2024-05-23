@@ -208,5 +208,6 @@ func TestRun(t *testing.T) {
 		context.JSON(http.StatusOK, users)
 	})
 
-	engine.Run(":8111")
+	//engine.Run(":8111")
+	engine.RunTLS(":8111", "key/server.pem", "key/server.key")
 }
