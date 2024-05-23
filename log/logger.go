@@ -49,21 +49,20 @@ func initLogger() {
 	// 设置日志级别
 	atomicLevel := zap.NewAtomicLevel()
 	atomicLevel.SetLevel(zap.DebugLevel)
+
+	consoleEncoder := zapcore.NewConsoleEncoder(encoderConfig)
+	cores := []zapcore.Core{
+		zapcore.NewCore(consoleEncoder, zapcore.AddSync(&hook), atomicLevel),
+	}
 	if loggerLevel == "debug" {
 		atomicLevel.SetLevel(zap.DebugLevel)
+		cores = append(cores, zapcore.NewCore(consoleEncoder, zapcore.AddSync(os.Stdout), atomicLevel))
 	} else if loggerLevel == "info" {
 		atomicLevel.SetLevel(zap.InfoLevel)
 	} else if loggerLevel == "warn" {
 		atomicLevel.SetLevel(zap.WarnLevel)
 	} else if loggerLevel == "error" {
 		atomicLevel.SetLevel(zap.ErrorLevel)
-	}
-
-	consoleEncoder := zapcore.NewConsoleEncoder(encoderConfig)
-	cores := make([]zapcore.Core, 0)
-	cores = append(cores, zapcore.NewCore(consoleEncoder, zapcore.AddSync(&hook), atomicLevel))
-	if loggerLevel == "debug" {
-		cores = append(cores, zapcore.NewCore(consoleEncoder, zapcore.AddSync(os.Stdout), atomicLevel))
 	}
 	core := zapcore.NewTee(cores...)
 
@@ -73,4 +72,5 @@ func initLogger() {
 	development := zap.Development()
 	// 构造日志
 	Log = zap.New(core, caller, development)
+	//Log = zap.New(core, caller)
 }
