@@ -197,14 +197,14 @@ func TestRun(t *testing.T) {
 		//var str string
 		err := context.Bind(&users)
 		if err != nil {
-			logger.Error(err.Error())
+			logger.Log.Error(err.Error())
 			context.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
-		logger.Debug("Debug")
-		logger.Info("Info")
-		logger.Warn("Warn")
-		logger.Error("Error")
+		logger.Log.Debug("Debug")
+		logger.Log.Info("Info")
+		logger.Log.Warn("Warn")
+		logger.Log.Error("Error")
 		context.JSON(http.StatusOK, users)
 	})
 

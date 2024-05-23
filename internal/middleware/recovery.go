@@ -1,4 +1,4 @@
-package cloud
+package middleware
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ import (
 func Recovery(context *web.Context) {
 	defer func() {
 		if err := recover(); err != nil {
-			logger.Error(detailMsg(err))
+			logger.Log.Error(detailMsg(err))
 			context.Fail(http.StatusInternalServerError, "Internal Server Error")
 		}
 	}()

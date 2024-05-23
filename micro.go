@@ -3,6 +3,7 @@ package cloud
 import (
 	"errors"
 	"fmt"
+	"github.com/caixr9527/go-cloud/internal/middleware"
 	logger "github.com/caixr9527/go-cloud/log"
 	"github.com/caixr9527/go-cloud/web"
 	"github.com/caixr9527/go-cloud/web/render"
@@ -38,7 +39,7 @@ func Default() *Engine {
 
 func New(options *web.Options) *Engine {
 	engine := Default()
-	engine.Use(logger.Logging, Recovery)
+	engine.Use(middleware.Logging, middleware.Recovery)
 	engine.ops = options
 	engine.LoadTemplate()
 	return engine
@@ -114,7 +115,7 @@ func printLog(addr string) {
 	fmt.Println(" | |__| | |__| | | |____| |___| |__| | |__| | |__| |")
 	fmt.Println("  \\_____|\\____/   \\_____|______\\____/ \\____/|_____/ " + Version)
 	fmt.Println(" ::start on port" + addr)
-	logger.Info("go-cloud start success, start on port" + addr)
+	logger.Log.Info("go-cloud start success, start on port" + addr)
 }
 
 func (e *Engine) LoadTemplate(ops ...web.TemplateOps) {

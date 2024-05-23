@@ -1,37 +1,13 @@
 package log
 
 import (
-	"fmt"
-	"github.com/caixr9527/go-cloud/web"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
-	"net"
 	"os"
-	"strings"
-	"time"
 )
 
-var log *zap.Logger
-
-func Info(msg string, fields ...zap.Field) {
-	defer log.Sync()
-	log.Info(msg, fields...)
-}
-
-func Error(msg string, fields ...zap.Field) {
-	defer log.Sync()
-	log.Error(msg, fields...)
-}
-
-func Debug(msg string, fields ...zap.Field) {
-	defer log.Sync()
-	log.Debug(msg, fields...)
-}
-func Warn(msg string, fields ...zap.Field) {
-	defer log.Sync()
-	log.Warn(msg, fields...)
-}
+var Log *zap.Logger
 
 func init() {
 	initLogger()
@@ -49,25 +25,26 @@ func initLogger() {
 	loggerLevel := "debug"
 
 	hook := lumberjack.Logger{
-		Filename:   logPath + loggerLevel + ".log", // 日志文件路径
+		Filename:   logPath + loggerLevel + ".Log", // 日志文件路径
 		MaxSize:    128,                            // 每个日志文件保存的大小 单位:M
 		MaxAge:     7,                              // 文件最多保存多少天
 		MaxBackups: 30,                             // 日志文件最多保存多少个备份
 		Compress:   true,                           // 是否压缩
 	}
 	encoderConfig := zapcore.EncoderConfig{
-		MessageKey:     "msg",
-		LevelKey:       "level",
-		TimeKey:        "time",
-		NameKey:        "logger",
-		CallerKey:      "file",
-		StacktraceKey:  "stacktrace",
-		LineEnding:     zapcore.DefaultLineEnding,
-		EncodeLevel:    zapcore.CapitalColorLevelEncoder,
-		EncodeTime:     zapcore.ISO8601TimeEncoder,
-		EncodeDuration: zapcore.SecondsDurationEncoder,
-		EncodeCaller:   zapcore.ShortCallerEncoder, // 短路径编码器
-		EncodeName:     zapcore.FullNameEncoder,
+		MessageKey:       "msg",
+		LevelKey:         "level",
+		TimeKey:          "time",
+		NameKey:          "logger",
+		CallerKey:        "file",
+		StacktraceKey:    "stacktrace",
+		LineEnding:       zapcore.DefaultLineEnding,
+		EncodeLevel:      zapcore.CapitalColorLevelEncoder,
+		EncodeTime:       zapcore.TimeEncoderOfLayout("2006-01-02 15:04:05"),
+		EncodeDuration:   zapcore.SecondsDurationEncoder,
+		EncodeCaller:     zapcore.ShortCallerEncoder, // 短路径编码器
+		EncodeName:       zapcore.FullNameEncoder,
+		ConsoleSeparator: "|",
 	}
 	// 设置日志级别
 	atomicLevel := zap.NewAtomicLevel()
@@ -95,26 +72,5 @@ func initLogger() {
 	// 开启文件及行号
 	development := zap.Development()
 	// 构造日志
-	log = zap.New(core, caller, development)
-}
-
-func Logging(context *web.Context) {
-	r := context.R
-	start := time.Now()
-	path := r.URL.Path
-	raw := r.URL.RawQuery
-
-	context.Next()
-
-	stop := time.Now()
-	stop.Sub(start)
-	latency := stop.Sub(start)
-	ip, _, _ := net.SplitHostPort(strings.TrimSpace(r.RemoteAddr))
-	clientIp := net.ParseIP(ip)
-	method := r.Method
-	statusCode := context.StatusCode
-	if raw != "" {
-		path = path + "?" + raw
-	}
-	Debug(fmt.Sprintf("ip: %s, method: %s, path: %s, status: %3d, cost: %v ", clientIp, method, path, statusCode, latency))
+	Log = zap.New(core, caller, development)
 }
