@@ -38,6 +38,7 @@ func Default() *Engine {
 
 func New(options *web.Options) *Engine {
 	engine := Default()
+	engine.Use(logger.Logging, Recovery)
 	engine.ops = options
 	engine.LoadTemplate()
 	return engine

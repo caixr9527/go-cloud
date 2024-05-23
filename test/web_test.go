@@ -26,7 +26,6 @@ func TestRun(t *testing.T) {
 		},
 	}
 	engine := cloud.New(options)
-	engine.Use(logger.Logging, cloud.Recovery)
 	handle := engine.Handle()
 	group := handle.Group("user")
 	group.Use(func(context *web.Context) {
