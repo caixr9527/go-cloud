@@ -3,6 +3,7 @@ package test
 import (
 	"fmt"
 	"github.com/caixr9527/go-cloud"
+	"github.com/caixr9527/go-cloud/auth"
 	"github.com/caixr9527/go-cloud/common"
 	logger "github.com/caixr9527/go-cloud/log"
 	"github.com/caixr9527/go-cloud/web"
@@ -26,6 +27,7 @@ func TestRun(t *testing.T) {
 		},
 	}
 	engine := cloud.New(options)
+	engine.Use(auth.Default().Auth)
 	handle := engine.Handle()
 	group := handle.Group("user")
 	group.Use(func(context *web.Context) {

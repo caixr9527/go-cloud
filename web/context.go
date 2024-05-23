@@ -8,6 +8,7 @@ import (
 	"html/template"
 	"io"
 	"log"
+	"math"
 	"mime/multipart"
 	"net/http"
 	"net/url"
@@ -35,13 +36,37 @@ type Context struct {
 	FormMap    map[string]any
 }
 
+func (c *Context) Set(key string, value any) {
+	c.mu.Lock()
+	if c.Keys == nil {
+		c.Keys = make(map[string]any)
+	}
+	c.Keys[key] = value
+	c.mu.Unlock()
+}
+
+func (c *Context) Get(key string) (value any, ok bool) {
+	c.mu.RLock()
+	value, ok = c.Keys[key]
+	c.mu.RUnlock()
+	return
+}
+
 // 进入对应路由的下一个方法
 func (c *Context) Next() {
 	c.Index++
-	for c.Index < len(c.Handlers) {
+	for c.Index < len(c.Handlers) && !c.IsAbort() {
 		c.Handlers[c.Index](c)
 		c.Index++
 	}
+}
+
+func (c *Context) Abort() {
+	c.Index = math.MaxInt
+}
+
+func (c *Context) IsAbort() bool {
+	return c.Index == math.MaxInt || c.Index < -1
 }
 
 func (c *Context) Query(key string) string {
