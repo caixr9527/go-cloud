@@ -153,6 +153,10 @@ func (c *Context) String(status int, format string, values ...any) error {
 	return c.render(status, &render.String{Format: format, Data: values})
 }
 
+func (c *Context) Fail(code int, msg string) {
+	c.String(code, msg)
+}
+
 func (c *Context) render(statusCode int, r render.Render) error {
 	err := r.Render(c.W, statusCode)
 	c.StatusCode = statusCode

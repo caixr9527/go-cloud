@@ -26,7 +26,7 @@ func TestRun(t *testing.T) {
 		},
 	}
 	engine := cloud.New(options)
-	engine.Use(logger.Logging)
+	engine.Use(logger.Logging, cloud.Recovery)
 	handle := engine.Handle()
 	group := handle.Group("user")
 	group.Use(func(context *web.Context) {
@@ -198,7 +198,7 @@ func TestRun(t *testing.T) {
 		//var str string
 		err := context.Bind(&users)
 		if err != nil {
-			log.Println(err)
+			logger.Error(err.Error())
 			context.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
