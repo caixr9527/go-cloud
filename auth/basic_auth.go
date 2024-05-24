@@ -45,7 +45,7 @@ func (b *BasicAuth) unAuthHandler(context *web.Context) {
 		b.UnAuthHandler(context)
 	} else {
 		context.W.Header().Set("WWW-Authenticate", b.Realm)
-		context.Fail(http.StatusUnauthorized, "Authentication error")
+		context.Fail(http.StatusUnauthorized, "Authentication failed")
 	}
 	context.Abort()
 }
