@@ -233,6 +233,22 @@ func (c *Context) FileFromFS(filepath string, fs http.FileSystem) {
 	http.FileServer(fs).ServeHTTP(c.W, c.R)
 }
 
+func (c *Context) SetCookie(name, value string, maxAge int, path, domain string, secure, httpOnly bool) {
+	if path == "" {
+		path = "/"
+	}
+	http.SetCookie(c.W, &http.Cookie{
+		Name:     name,
+		Value:    url.QueryEscape(value),
+		Path:     path,
+		Domain:   domain,
+		MaxAge:   maxAge,
+		Secure:   secure,
+		HttpOnly: httpOnly,
+		SameSite: c.sameSite,
+	})
+}
+
 func (c *Context) Bind(obj any) error {
 	contentType := c.R.Header.Get("Content-Type")
 	contentType = strings.Split(contentType, ";")[0]
