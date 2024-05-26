@@ -210,7 +210,19 @@ func TestRun(t *testing.T) {
 		logger.Log.Error("Error")
 		context.JSON(http.StatusOK, users)
 	})
-
+	config := &auth.JwtToken{
+		JwtConfig: auth.JwtConfig{
+			Alg:          "HS256",
+			TokenTimeout: 30 * time.Second,
+			RefreshKey:   []byte("refreshKey"),
+			Key:          []byte("go_cloud"),
+			Whitelist:    nil,
+		},
+	}
+	claims := map[string]any{"userId": 1}
+	token, _ := config.CreateToken(claims)
+	fmt.Println(token.Token)
+	fmt.Println(token.RefreshToken)
 	//engine.Run(":8111")
 	engine.RunTLS(":8111", "key/server.pem", "key/server.key")
 }
