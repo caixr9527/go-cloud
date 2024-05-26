@@ -11,15 +11,6 @@ type BasicAuth struct {
 	Realm         string
 }
 
-func Default() *BasicAuth {
-	keys := make(map[string]any)
-	// YWRtaW46Z29fY2xvdWQ=
-	keys["admin"] = "go_cloud"
-	return &BasicAuth{
-		AuthKeys: keys,
-	}
-}
-
 func (b *BasicAuth) Auth(context *web.Context) {
 	username, password, ok := context.R.BasicAuth()
 	if !ok {

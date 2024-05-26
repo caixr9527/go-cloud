@@ -27,7 +27,8 @@ func TestRun(t *testing.T) {
 		},
 	}
 	engine := cloud.New(options)
-	engine.Use(auth.Default().Auth)
+	//engine.Use(auth.Basic.Auth)
+	engine.Use(auth.Token.Auth)
 	handle := engine.Handle()
 	group := handle.Group("user")
 	group.Use(func(context *web.Context) {
