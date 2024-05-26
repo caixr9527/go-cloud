@@ -11,6 +11,8 @@ var (
 	Basic = &BasicAuth{AuthKeys: map[string]any{"admin": "go_cloud"}}
 	Token = &TokenAuth{
 		TokenName: "token",
-		Key:       []byte("go_cloud"),
+		JwtConfig: JwtConfig{
+			Key: []byte("go_cloud"),
+		},
 	}
 )
