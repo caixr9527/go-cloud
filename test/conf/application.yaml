@@ -1,0 +1,6 @@
+server:
+  port: 8888
+  https:
+    enable: true
+    cert: key/server.pem
+    key: key/server.key

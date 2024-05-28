@@ -223,6 +223,6 @@ func TestRun(t *testing.T) {
 	token, _ := config.CreateToken(claims)
 	fmt.Println(token.Token)
 	fmt.Println(token.RefreshToken)
-	//engine.Run(":8111")
-	engine.RunTLS(":8111", "key/server.pem", "key/server.key")
+	//engine.RunTLS("key/server.pem", "key/server.key")
+	engine.Run()
 }

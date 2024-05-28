@@ -3,6 +3,7 @@ package cloud
 import (
 	"errors"
 	"fmt"
+	"github.com/caixr9527/go-cloud/config"
 	"github.com/caixr9527/go-cloud/internal/middleware"
 	logger "github.com/caixr9527/go-cloud/log"
 	"github.com/caixr9527/go-cloud/web"
@@ -84,7 +85,11 @@ func (e *Engine) Context() *web.Context {
 	return e.trie.GetEstart().Pool.Get().(*web.Context)
 }
 
-func (e *Engine) Run(addr string) {
+func (e *Engine) Run() {
+	if config.Cfg.Server.Https.Enable {
+		e.RunTLS()
+	}
+	addr := fmt.Sprintf("%s%d", ":", config.Cfg.Server.Port)
 	e.trie.Initialization()
 	srv := &http.Server{
 		Addr:         addr,
@@ -98,9 +103,14 @@ func (e *Engine) Run(addr string) {
 	}
 }
 
-func (e *Engine) RunTLS(addr, certFile, keyFile string) {
+func (e *Engine) RunTLS() {
+	addr := fmt.Sprintf("%s%d", ":", config.Cfg.Server.Port)
+	certFile := config.Cfg.Server.Https.CertPath
+	keyFile := config.Cfg.Server.Https.KeyPath
 	e.trie.Initialization()
 	printLog(addr)
+	logger.Log.Info("load cert: " + certFile)
+	logger.Log.Info("load key: " + keyFile)
 	err := http.ListenAndServeTLS(addr, certFile, keyFile, e)
 	if err != nil {
 		log.Fatalf("listen: %s\n", err)
