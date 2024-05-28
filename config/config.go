@@ -1,8 +1,8 @@
 package config
 
 import (
-	"github.com/caixr9527/go-cloud/log"
 	"gopkg.in/yaml.v3"
+	"log"
 	"os"
 )
 
@@ -10,6 +10,7 @@ var Cfg config
 
 type config struct {
 	Server serverConfig `yaml:"server"`
+	Logger logConfig    `yaml:"logger"`
 }
 
 func init() {
@@ -19,14 +20,14 @@ func init() {
 
 func loadConfig(data []byte) {
 	if err := yaml.Unmarshal(data, &Cfg); err != nil {
-		log.Log.Error(err.Error())
+		log.Fatal(err)
 	}
 }
 
 func loadYaml() []byte {
 	data, err := os.ReadFile("conf/application.yaml")
 	if err != nil {
-		log.Log.Error(err.Error())
+		log.Fatal(err)
 		os.Exit(-1)
 		return nil
 	}

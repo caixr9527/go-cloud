@@ -1,6 +1,7 @@
 package log
 
 import (
+	"github.com/caixr9527/go-cloud/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -21,15 +22,21 @@ func initLogger() {
 	//if err != nil {
 	//	debug = false
 	//}
-	logPath := "./logs/"
-	loggerLevel := "debug"
-
+	//logPath := "./logs/"
+	loggerLevel := config.Cfg.Logger.Level
+	if loggerLevel == "" {
+		loggerLevel = "debug"
+	}
+	filename := config.Cfg.Logger.FileName
+	if filename == "" {
+		filename = "./logs/" + loggerLevel + ".log"
+	}
 	hook := lumberjack.Logger{
-		Filename:   logPath + loggerLevel + ".Log", // 日志文件路径
-		MaxSize:    128,                            // 每个日志文件保存的大小 单位:M
-		MaxAge:     7,                              // 文件最多保存多少天
-		MaxBackups: 30,                             // 日志文件最多保存多少个备份
-		Compress:   true,                           // 是否压缩
+		Filename:   filename, // 日志文件路径
+		MaxSize:    128,      // 每个日志文件保存的大小 单位:M
+		MaxAge:     7,        // 文件最多保存多少天
+		MaxBackups: 30,       // 日志文件最多保存多少个备份
+		Compress:   true,     // 是否压缩
 	}
 	encoderConfig := zapcore.EncoderConfig{
 		MessageKey:       "msg",

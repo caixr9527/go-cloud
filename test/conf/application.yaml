@@ -4,3 +4,7 @@ server:
     enable: true
     cert: key/server.pem
     key: key/server.key
+
+logger:
+#  fileName: app.log
+  level: debug
