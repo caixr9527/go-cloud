@@ -29,6 +29,7 @@ func (e *Engine) Handle() *web.RequestHandler {
 }
 
 func Default() *Engine {
+	initialization()
 	trie := web.NewTrie()
 	return &Engine{
 		trie: trie,
@@ -101,6 +102,11 @@ func (e *Engine) Run() {
 	if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("listen: %s\n", err)
 	}
+}
+
+func initialization() {
+	config.Init()
+	logger.Init()
 }
 
 func (e *Engine) RunTLS() {

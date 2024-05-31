@@ -4,18 +4,22 @@ import (
 	"gopkg.in/yaml.v3"
 	"log"
 	"os"
+	"sync"
 )
 
 var Cfg config
+var once sync.Once
 
 type config struct {
 	Server serverConfig `yaml:"server"`
 	Logger logConfig    `yaml:"logger"`
 }
 
-func init() {
-	data := loadYaml()
-	loadConfig(data)
+func Init() {
+	once.Do(func() {
+		data := loadYaml()
+		loadConfig(data)
+	})
 }
 
 func loadConfig(data []byte) {

@@ -6,12 +6,16 @@ import (
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"os"
+	"sync"
 )
 
 var Log *zap.Logger
+var once sync.Once
 
-func init() {
-	initLogger()
+func Init() {
+	once.Do(func() {
+		initLogger()
+	})
 }
 
 func initLogger() {
