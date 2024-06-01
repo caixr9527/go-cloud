@@ -3,6 +3,7 @@ package web
 import (
 	"errors"
 	"github.com/caixr9527/go-cloud/common/utils/stringUtils"
+	logger "github.com/caixr9527/go-cloud/log"
 	"github.com/caixr9527/go-cloud/web/binding"
 	"github.com/caixr9527/go-cloud/web/render"
 	"html/template"
@@ -103,8 +104,7 @@ func (c *Context) PostForm(key string) (any, error) {
 func (c *Context) parseMultipartForm() {
 	if err := c.R.ParseMultipartForm(defaultMaxMemory); err != nil {
 		if !errors.Is(err, http.ErrNotMultipart) {
-			//todo
-			log.Println(err)
+			logger.Log.Error(err.Error())
 		}
 	}
 }

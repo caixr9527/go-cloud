@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"github.com/caixr9527/go-cloud/common/utils/sliceUtils"
 	"github.com/caixr9527/go-cloud/web"
 	"github.com/golang-jwt/jwt/v5"
 	"net/http"
@@ -33,6 +34,9 @@ type JwtToken struct {
 }
 
 func (jt *JwtToken) CreateToken(claims map[string]any) (*JwtResponse, error) {
+	if jt.Alg == "" {
+		jt.Alg = "HS256"
+	}
 	signingMethod := jwt.GetSigningMethod(jt.Alg)
 	token := jwt.New(signingMethod)
 	mapClaims := token.Claims.(jwt.MapClaims)
@@ -60,6 +64,9 @@ func (jt *JwtToken) CreateToken(claims map[string]any) (*JwtResponse, error) {
 }
 
 func (ta *TokenAuth) Auth(context *web.Context) {
+	if sliceUtils.Contains(ta.Whitelist, context.R.URL.Path) {
+		return
+	}
 	if ta.TokenName == "" {
 		ta.TokenName = TOKEN
 	}

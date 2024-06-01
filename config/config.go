@@ -17,9 +17,11 @@ const (
 )
 
 type config struct {
-	Server serverConfig `yaml:"server"`
-	Logger logConfig    `yaml:"logger"`
-	Cloud  cloudConfig  `yaml:"cloud"`
+	Server    serverConfig `yaml:"server"`
+	Logger    logConfig    `yaml:"logger"`
+	Cloud     cloudConfig  `yaml:"cloud"`
+	BasicAuth basicAuth    `yaml:"basicAuth"`
+	Jwt       jwt          `yaml:"jwt"`
 }
 
 func Init() {

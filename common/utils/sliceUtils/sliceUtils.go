@@ -23,3 +23,17 @@ func IsEmpty(data any) bool {
 func IsNotEmpty(data any) bool {
 	return !IsEmpty(data)
 }
+
+func Contains(slice any, value any) bool {
+	if IsEmpty(slice) {
+		return false
+	}
+	v := reflect.ValueOf(slice)
+	data := v.Interface().([]interface{})
+	for _, val := range data {
+		if val == value {
+			return true
+		}
+	}
+	return false
+}
