@@ -19,14 +19,6 @@ func Init() {
 }
 
 func initLogger() {
-	// 此处的配置是从我的项目配置文件读取的，读者可以根据自己的情况来设置
-	//logPath := config.Cfg.Section("app").Key("logPath").String()
-	//name := config.Cfg.Section("app").Key("name").String()
-	//debug, err := config.Cfg.Section("app").Key("debug").Bool()
-	//if err != nil {
-	//	debug = false
-	//}
-	//logPath := "./logs/"
 	loggerLevel := config.Cfg.Logger.Level
 	if loggerLevel == "" {
 		loggerLevel = "debug"
@@ -35,12 +27,24 @@ func initLogger() {
 	if filename == "" {
 		filename = "./logs/" + loggerLevel + ".log"
 	}
+	maxAge := config.Cfg.Logger.MaxAge
+	if maxAge == 0 {
+		maxAge = 7
+	}
+	maxSize := config.Cfg.Logger.MaxSize
+	if maxSize == 0 {
+		maxSize = 100
+	}
+	maxBackups := config.Cfg.Logger.MaxBackups
+	if maxBackups == 0 {
+		maxBackups = 7
+	}
 	hook := lumberjack.Logger{
-		Filename:   filename, // 日志文件路径
-		MaxSize:    128,      // 每个日志文件保存的大小 单位:M
-		MaxAge:     7,        // 文件最多保存多少天
-		MaxBackups: 30,       // 日志文件最多保存多少个备份
-		Compress:   true,     // 是否压缩
+		Filename:   filename,                   // 日志文件路径
+		MaxSize:    int(maxSize),               // 每个日志文件保存的大小 单位:M
+		MaxAge:     int(maxAge),                // 文件最多保存多少天
+		MaxBackups: int(maxBackups),            // 日志文件最多保存多少个备份
+		Compress:   config.Cfg.Logger.Compress, // 是否压缩
 	}
 	encoderConfig := zapcore.EncoderConfig{
 		MessageKey:       "msg",
@@ -79,9 +83,13 @@ func initLogger() {
 
 	// 开启开发模式，堆栈跟踪
 	caller := zap.AddCaller()
-	// 开启文件及行号
-	development := zap.Development()
-	// 构造日志
-	Log = zap.New(core, caller, development)
-	//Log = zap.New(core, caller)
+	active := config.Cfg.Cloud.Active
+	if active == config.DEV {
+		// 开启文件及行号
+		development := zap.Development()
+		// 构造日志
+		Log = zap.New(core, caller, development)
+	} else {
+		Log = zap.New(core, caller)
+	}
 }

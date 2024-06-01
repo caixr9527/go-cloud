@@ -8,3 +8,6 @@ server:
 logger:
 #  fileName: app.log
   level: debug
+
+cloud:
+  active: dev

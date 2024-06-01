@@ -10,9 +10,16 @@ import (
 var Cfg config
 var once sync.Once
 
+const (
+	PROD = "prod"
+	DEV  = "dev"
+	TEST = "test"
+)
+
 type config struct {
 	Server serverConfig `yaml:"server"`
 	Logger logConfig    `yaml:"logger"`
+	Cloud  cloudConfig  `yaml:"cloud"`
 }
 
 func Init() {
