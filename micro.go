@@ -89,18 +89,19 @@ func (e *Engine) Context() *web.Context {
 func (e *Engine) Run() {
 	if config.Cfg.Server.Https.Enable {
 		e.RunTLS()
-	}
-	addr := fmt.Sprintf("%s%d", ":", config.Cfg.Server.Port)
-	e.trie.Initialization()
-	srv := &http.Server{
-		Addr:         addr,
-		Handler:      e,
-		ReadTimeout:  0,
-		WriteTimeout: 0,
-	}
-	printLog(addr)
-	if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		log.Fatalf("listen: %s\n", err)
+	} else {
+		addr := fmt.Sprintf("%s%d", ":", config.Cfg.Server.Port)
+		e.trie.Initialization()
+		srv := &http.Server{
+			Addr:         addr,
+			Handler:      e,
+			ReadTimeout:  0,
+			WriteTimeout: 0,
+		}
+		printLog(addr)
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatalf("listen: %s\n", err)
+		}
 	}
 }
 
@@ -132,6 +133,7 @@ func printLog(addr string) {
 	fmt.Println("  \\_____|\\____/   \\_____|______\\____/ \\____/|_____/ " + Version)
 	fmt.Println(" ::start on port" + addr)
 	logger.Log.Info("go-cloud start success, start on port" + addr)
+	logger.Log.Info("go-cloud start success, active: " + config.Cfg.Cloud.Active)
 }
 
 func (e *Engine) LoadTemplate(ops ...web.TemplateOps) {
