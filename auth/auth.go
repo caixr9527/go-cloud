@@ -14,7 +14,7 @@ var (
 	// YWRtaW46Z29fY2xvdWQ=
 	Basic = &BasicAuth{AuthKeys: map[string]any{config.Cfg.BasicAuth.Username: config.Cfg.BasicAuth.Password}}
 	Token = &TokenAuth{
-		TokenName: "token",
+		TokenName: config.Cfg.Jwt.Header,
 		JwtConfig: JwtConfig{
 			Alg:          config.Cfg.Jwt.Alg,
 			TokenTimeout: config.Cfg.Jwt.TokenTimeout * time.Second,
