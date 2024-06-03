@@ -21,12 +21,9 @@ type User struct {
 
 func TestRun(t *testing.T) {
 
-	options := &web.Options{
-		TemplateOps: web.TemplateOps{
-			TemplatePattern: "tpl/*.html",
-		},
-	}
+	options := &web.Options{}
 	engine := cloud.New(options)
+	//engine := cloud.Default()
 	//engine.Use(auth.Basic.Auth)
 	engine.Use(auth.Token.Auth)
 	handle := engine.Handle()

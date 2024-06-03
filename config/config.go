@@ -22,6 +22,7 @@ type config struct {
 	Cloud     cloudConfig  `yaml:"cloud"`
 	BasicAuth basicAuth    `yaml:"basicAuth"`
 	Jwt       jwt          `yaml:"jwt"`
+	Template  template     `yaml:"template"`
 }
 
 func Init() {

@@ -133,18 +133,25 @@ func printLog(addr string) {
 	fmt.Println("  \\_____|\\____/   \\_____|______\\____/ \\____/|_____/ " + Version)
 	fmt.Println(" ::start on port" + addr)
 	logger.Log.Info("go-cloud start success, start on port" + addr)
-	logger.Log.Info("go-cloud start success, active: " + config.Cfg.Cloud.Active)
+	logger.Log.Info("go-cloud env active: " + config.Cfg.Cloud.Active)
+	if config.Cfg.Template.Path != "" {
+		logger.Log.Info("go-cloud load template: " + config.Cfg.Template.Path)
+	}
 }
 
 func (e *Engine) LoadTemplate(ops ...web.TemplateOps) {
 	var funcMap template.FuncMap
-	var pattern string
+	var pattern = config.Cfg.Template.Path
 	if len(ops) == 0 {
 		funcMap = e.ops.FuncMap
-		pattern = e.ops.TemplatePattern
+		if e.ops.TemplatePattern != "" {
+			pattern = e.ops.TemplatePattern
+		}
 	} else {
 		funcMap = ops[0].FuncMap
-		pattern = ops[0].TemplatePattern
+		if ops[0].TemplatePattern != "" {
+			pattern = ops[0].TemplatePattern
+		}
 	}
 	t := template.Must(template.New("").Funcs(funcMap).ParseGlob(pattern))
 	e.ops.HTMLRender = render.HTMLRender{Template: t}

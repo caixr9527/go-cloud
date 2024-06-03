@@ -11,3 +11,6 @@ logger:
 
 cloud:
   active: dev
+
+template:
+  path: tpl/*.html
