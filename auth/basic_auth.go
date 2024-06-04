@@ -11,19 +11,19 @@ import (
 func BasicAuth(context *web.Context) {
 	username, password, ok := context.R.BasicAuth()
 	if !ok {
-		unAuth(context)
+		unAuth(context, "basic auth require")
 		return
 	}
 	if config.Cfg.BasicAuth.Username != username || password != config.Cfg.BasicAuth.Password {
-		unAuth(context)
+		unAuth(context, "Authentication failed")
 		return
 	}
 	context.Set("user", username)
 	context.Set("pwd", password)
 }
 
-func unAuth(context *web.Context) {
+func unAuth(context *web.Context, msg string) {
 	context.W.Header().Set("WWW-Authenticate", config.Cfg.BasicAuth.Realm)
-	context.Fail(http.StatusUnauthorized, "Authentication failed")
+	context.Fail(http.StatusUnauthorized, msg)
 	context.Abort()
 }
