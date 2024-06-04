@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"github.com/caixr9527/go-cloud/common/utils/sliceUtils"
 	"github.com/caixr9527/go-cloud/config"
 	"github.com/caixr9527/go-cloud/web"
 	"github.com/golang-jwt/jwt/v5"
@@ -53,9 +54,10 @@ func (jt *JwtToken) CreateToken(claims map[string]any) (*JwtResponse, error) {
 }
 
 func Token(context *web.Context) {
-	//if sliceUtils.Contains(config.Cfg.Jwt.Whitelist, context.R.URL.Path) {
-	//	return
-	//}
+	whitelist := config.Cfg.Jwt.Whitelist
+	if whitelist != nil && len(whitelist) > 0 && sliceUtils.ContainsString(whitelist, context.R.URL.Path) {
+		return
+	}
 	if config.Cfg.Jwt.Header == "" {
 		config.Cfg.Jwt.Header = TOKEN
 	}
