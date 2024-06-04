@@ -14,6 +14,7 @@ func Recovery(context *web.Context) {
 		if err := recover(); err != nil {
 			logger.Log.Error(detailMsg(err))
 			context.Fail(http.StatusInternalServerError, "Internal Server Error")
+			context.Abort()
 		}
 	}()
 	context.Next()

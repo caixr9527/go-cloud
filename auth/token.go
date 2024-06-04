@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"github.com/caixr9527/go-cloud/common/utils/sliceUtils"
+	"github.com/caixr9527/go-cloud/config"
 	"github.com/caixr9527/go-cloud/web"
 	"github.com/golang-jwt/jwt/v5"
 	"net/http"
@@ -10,27 +10,16 @@ import (
 
 const TOKEN = "token"
 
-type TokenAuth struct {
-	JwtConfig
-	UnAuthHandler func(context *web.Context)
-	TokenName     string
-}
-
 type JwtResponse struct {
 	Token        string
 	RefreshToken string
 }
 
-type JwtConfig struct {
+type JwtToken struct {
 	Alg          string
 	TokenTimeout time.Duration
 	RefreshKey   []byte
 	Key          []byte
-	Whitelist    []string
-}
-
-type JwtToken struct {
-	JwtConfig
 }
 
 func (jt *JwtToken) CreateToken(claims map[string]any) (*JwtResponse, error) {
@@ -63,38 +52,33 @@ func (jt *JwtToken) CreateToken(claims map[string]any) (*JwtResponse, error) {
 	}, nil
 }
 
-func (ta *TokenAuth) Auth(context *web.Context) {
-	if sliceUtils.Contains(ta.Whitelist, context.R.URL.Path) {
-		return
+func Token(context *web.Context) {
+	//if sliceUtils.Contains(config.Cfg.Jwt.Whitelist, context.R.URL.Path) {
+	//	return
+	//}
+	if config.Cfg.Jwt.Header == "" {
+		config.Cfg.Jwt.Header = TOKEN
 	}
-	if ta.TokenName == "" {
-		ta.TokenName = TOKEN
-	}
-	token := context.R.Header.Get(ta.TokenName)
+	token := context.R.Header.Get(config.Cfg.Jwt.Header)
 	if token == "" {
-		token = context.Query(ta.TokenName)
+		token = context.Query(config.Cfg.Jwt.Header)
 		if token == "" {
-			ta.unAuthHandler(context, "token require")
+			unAuthHandler(context, "token require")
 			return
 		}
 	}
 	t, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		return ta.Key, nil
+		return []byte(config.Cfg.Jwt.SecretKey), nil
 	})
 	if err != nil {
-		ta.unAuthHandler(context, err.Error())
+		unAuthHandler(context, err.Error())
 		return
 	}
 	claims := t.Claims.(jwt.MapClaims)
 	context.Set("claims", claims)
-	context.Next()
 }
 
-func (ta *TokenAuth) unAuthHandler(context *web.Context, msg string) {
-	if ta.UnAuthHandler != nil {
-		ta.UnAuthHandler(context)
-	} else {
-		context.Fail(http.StatusUnauthorized, msg)
-	}
+func unAuthHandler(context *web.Context, msg string) {
+	context.Fail(http.StatusUnauthorized, msg)
 	context.Abort()
 }

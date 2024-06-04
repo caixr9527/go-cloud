@@ -5,6 +5,7 @@ import "time"
 type basicAuth struct {
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
+	Realm    string `yaml:"realm"`
 }
 
 type jwt struct {

@@ -24,8 +24,7 @@ func TestRun(t *testing.T) {
 	options := &web.Options{}
 	engine := cloud.New(options)
 	//engine := cloud.Default()
-	//engine.Use(auth.Basic.Auth)
-	engine.Use(auth.Token.Auth)
+	engine.Use(auth.Token)
 	handle := engine.Handle()
 	group := handle.Group("user")
 	group.Use(func(context *web.Context) {
@@ -208,18 +207,14 @@ func TestRun(t *testing.T) {
 		context.JSON(http.StatusOK, users)
 	})
 	config := &auth.JwtToken{
-		JwtConfig: auth.JwtConfig{
-			Alg:          "HS256",
-			TokenTimeout: 30 * time.Second,
-			RefreshKey:   []byte("refreshKey"),
-			Key:          []byte("go_cloud"),
-			Whitelist:    nil,
-		},
+		Alg:          "HS256",
+		TokenTimeout: 30 * time.Second,
+		RefreshKey:   []byte("refreshKey"),
+		Key:          []byte("go_cloud"),
 	}
 	claims := map[string]any{"userId": 1}
 	token, _ := config.CreateToken(claims)
 	fmt.Println(token.Token)
 	fmt.Println(token.RefreshToken)
-	//engine.RunTLS("key/server.pem", "key/server.key")
 	engine.Run()
 }
