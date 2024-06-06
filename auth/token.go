@@ -54,7 +54,7 @@ func (jt *JwtToken) CreateToken(claims map[string]any) (*JwtResponse, error) {
 }
 
 func Token(context *web.Context) {
-	whitelist := config.Cfg.Jwt.Whitelist
+	whitelist := config.Cfg.Jwt.Allow
 	if whitelist != nil && len(whitelist) > 0 && sliceUtils.ContainsString(whitelist, context.R.URL.Path) {
 		return
 	}

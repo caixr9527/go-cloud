@@ -14,5 +14,5 @@ type jwt struct {
 	Alg          string        `yaml:"alg"`
 	TokenTimeout time.Duration `yaml:"timeout"`
 	RefreshKey   string        `yaml:"refreshKey"`
-	Whitelist    []string      `yaml:"ignore"`
+	Allow        []string      `yaml:"allow"`
 }
