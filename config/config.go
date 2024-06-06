@@ -23,6 +23,7 @@ type config struct {
 	BasicAuth basicAuth    `yaml:"basicAuth"`
 	Jwt       jwt          `yaml:"jwt"`
 	Template  template     `yaml:"template"`
+	Db        dbConfig     `yaml:"db"`
 }
 
 func Init() {

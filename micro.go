@@ -6,6 +6,7 @@ import (
 	"github.com/caixr9527/go-cloud/config"
 	"github.com/caixr9527/go-cloud/internal/middleware"
 	logger "github.com/caixr9527/go-cloud/log"
+	"github.com/caixr9527/go-cloud/orm"
 	"github.com/caixr9527/go-cloud/web"
 	"github.com/caixr9527/go-cloud/web/render"
 	"html/template"
@@ -111,6 +112,7 @@ func (e *Engine) run() {
 func initialization() {
 	config.Init()
 	logger.Init()
+	orm.InitDbConn()
 }
 
 func (e *Engine) runTLS() {
