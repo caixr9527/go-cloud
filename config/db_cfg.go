@@ -11,25 +11,25 @@ type mysqlConfig struct {
 	// You can disable it by setting `SkipDefaultTransaction` to true
 	SkipDefaultTransaction bool `yaml:"skipDefaultTransaction"`
 	// FullSaveAssociations full save associations
-	FullSaveAssociations bool
+	FullSaveAssociations bool `yaml:"fullSaveAssociations"`
 	// DryRun generate sql without execute
-	DryRun bool
+	DryRun bool `yaml:"dryRun"`
 	// DisableAutomaticPing
-	DisableAutomaticPing bool
+	DisableAutomaticPing bool `yaml:"disableAutomaticPing"`
 	// DisableForeignKeyConstraintWhenMigrating
-	DisableForeignKeyConstraintWhenMigrating bool
+	DisableForeignKeyConstraintWhenMigrating bool `yaml:"disableForeignKeyConstraintWhenMigrating"`
 	// IgnoreRelationshipsWhenMigrating
-	IgnoreRelationshipsWhenMigrating bool
+	IgnoreRelationshipsWhenMigrating bool `yaml:"ignoreRelationshipsWhenMigrating"`
 	// DisableNestedTransaction disable nested transaction
-	DisableNestedTransaction bool
+	DisableNestedTransaction bool `yaml:"disableNestedTransaction"`
 	// AllowGlobalUpdate allow global update
-	AllowGlobalUpdate bool
+	AllowGlobalUpdate bool `yaml:"allowGlobalUpdate"`
 	// QueryFields executes the SQL query with all fields of the table
-	QueryFields bool
+	QueryFields bool `yaml:"queryFields"`
 	// CreateBatchSize default create batch size
-	CreateBatchSize int
+	CreateBatchSize int `yaml:"createBatchSize"`
 	// TranslateError enabling error translation
-	TranslateError bool
+	TranslateError bool `yaml:"translateError"`
 }
 
 type dbConfig struct {

@@ -30,7 +30,18 @@ func initMysqlConn() {
 	logger.Log.Info("init mysql conn")
 	mysqlCfg := config.Cfg.Db.Mysql
 	db, err := gorm.Open(mysql.Open(mysqlCfg.Url), &gorm.Config{
-		PrepareStmt: mysqlCfg.PrepareStmt,
+		PrepareStmt:                              mysqlCfg.PrepareStmt,
+		SkipDefaultTransaction:                   mysqlCfg.SkipDefaultTransaction,
+		FullSaveAssociations:                     mysqlCfg.FullSaveAssociations,
+		DryRun:                                   mysqlCfg.DryRun,
+		DisableAutomaticPing:                     mysqlCfg.DisableAutomaticPing,
+		DisableForeignKeyConstraintWhenMigrating: mysqlCfg.DisableForeignKeyConstraintWhenMigrating,
+		IgnoreRelationshipsWhenMigrating:         mysqlCfg.IgnoreRelationshipsWhenMigrating,
+		DisableNestedTransaction:                 mysqlCfg.DisableNestedTransaction,
+		AllowGlobalUpdate:                        mysqlCfg.AllowGlobalUpdate,
+		QueryFields:                              mysqlCfg.QueryFields,
+		CreateBatchSize:                          mysqlCfg.CreateBatchSize,
+		TranslateError:                           mysqlCfg.TranslateError,
 	})
 	if err != nil {
 		panic(err)
