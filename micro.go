@@ -3,6 +3,7 @@ package cloud
 import (
 	"errors"
 	"fmt"
+	"github.com/caixr9527/go-cloud/cache"
 	"github.com/caixr9527/go-cloud/config"
 	"github.com/caixr9527/go-cloud/internal/middleware"
 	logger "github.com/caixr9527/go-cloud/log"
@@ -112,7 +113,8 @@ func (e *Engine) run() {
 func initialization() {
 	config.Init()
 	logger.Init()
-	orm.InitDbConn()
+	orm.Init()
+	cache.Init()
 }
 
 func (e *Engine) runTLS() {

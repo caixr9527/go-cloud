@@ -12,7 +12,7 @@ import (
 var DB *gorm.DB
 var once sync.Once
 
-func InitDbConn() {
+func Init() {
 	if !config.Cfg.Db.Enable {
 		return
 	}
@@ -54,13 +54,13 @@ func initMysqlConn() {
 		conn.SetMaxOpenConns(mysqlCfg.MaxOpenConns)
 	}
 	if mysqlCfg.MaxLifetime != 0 {
-		conn.SetConnMaxLifetime(time.Duration(mysqlCfg.MaxLifetime) * time.Millisecond)
+		conn.SetConnMaxLifetime(time.Duration(mysqlCfg.MaxLifetime))
 	}
 	if mysqlCfg.MaxIdleConns != 0 {
 		conn.SetMaxIdleConns(mysqlCfg.MaxIdleConns)
 	}
 	if mysqlCfg.MaxIdleTime != 0 {
-		conn.SetConnMaxIdleTime(time.Duration(mysqlCfg.MaxIdleTime) * time.Millisecond)
+		conn.SetConnMaxIdleTime(time.Duration(mysqlCfg.MaxIdleTime))
 	}
 	DB = db
 	logger.Log.Info("init mysql conn success")

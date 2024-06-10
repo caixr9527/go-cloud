@@ -24,6 +24,7 @@ type config struct {
 	Jwt       jwt          `yaml:"jwt"`
 	Template  template     `yaml:"template"`
 	Db        dbConfig     `yaml:"db"`
+	Redis     redisConfig  `yaml:"redis"`
 }
 
 func Init() {

@@ -3,10 +3,12 @@ package config
 type mysqlConfig struct {
 	Url          string `yaml:"url"`
 	MaxOpenConns int    `yaml:"maxOpenConns"`
-	MaxLifetime  int64  `yaml:"maxLifetime"`
-	MaxIdleConns int    `yaml:"maxIdleConns"`
-	MaxIdleTime  int64  `yaml:"maxIdleTime"`
-	PrepareStmt  bool   `yaml:"prepareStmt"`
+	// Millisecond
+	MaxLifetime  int64 `yaml:"maxLifetime"`
+	MaxIdleConns int   `yaml:"maxIdleConns"`
+	// Millisecond
+	MaxIdleTime int64 `yaml:"maxIdleTime"`
+	PrepareStmt bool  `yaml:"prepareStmt"`
 	// GORM perform single create, update, delete operations in transactions by default to ensure database data integrity
 	// You can disable it by setting `SkipDefaultTransaction` to true
 	SkipDefaultTransaction bool `yaml:"skipDefaultTransaction"`
