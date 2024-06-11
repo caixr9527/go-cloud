@@ -1,12 +1,12 @@
 package config
 
 type https struct {
-	Enable   bool   `yaml:"enable"`
-	CertPath string `yaml:"cert"`
-	KeyPath  string `yaml:"key"`
+	Enable   bool   `yaml:"enable" mapstructure:"enable"`
+	CertPath string `yaml:"cert" mapstructure:"cert"`
+	KeyPath  string `yaml:"key" mapstructure:"key"`
 }
 
 type serverConfig struct {
-	Port  uint32 `yaml:"port"`
-	Https https  `yaml:"https"`
+	Port  uint32 `yaml:"port" mapstructure:"port"`
+	Https https  `yaml:"https" mapstructure:"https"`
 }
