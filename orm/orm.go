@@ -29,7 +29,7 @@ func Init() {
 func initMysqlConn() {
 	logger.Log.Info("init mysql conn")
 	mysqlCfg := config.Cfg.Db.Mysql
-	db, err := gorm.Open(mysql.Open(mysqlCfg.Url), &gorm.Config{
+	g := &gorm.Config{
 		PrepareStmt:                              mysqlCfg.PrepareStmt,
 		SkipDefaultTransaction:                   mysqlCfg.SkipDefaultTransaction,
 		FullSaveAssociations:                     mysqlCfg.FullSaveAssociations,
@@ -40,9 +40,12 @@ func initMysqlConn() {
 		DisableNestedTransaction:                 mysqlCfg.DisableNestedTransaction,
 		AllowGlobalUpdate:                        mysqlCfg.AllowGlobalUpdate,
 		QueryFields:                              mysqlCfg.QueryFields,
-		CreateBatchSize:                          mysqlCfg.CreateBatchSize,
 		TranslateError:                           mysqlCfg.TranslateError,
-	})
+	}
+	if mysqlCfg.CreateBatchSize != 0 {
+		g.CreateBatchSize = mysqlCfg.CreateBatchSize
+	}
+	db, err := gorm.Open(mysql.Open(mysqlCfg.Url), g)
 	if err != nil {
 		panic(err)
 	}
