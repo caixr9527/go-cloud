@@ -26,6 +26,7 @@ func Init() {
 }
 
 func createClient() {
+	log.Log.Info("connect nacos")
 	clientConfig := clientConf()
 	serverConfigs := serverConfig()
 	if config.Cfg.Discover.EnableDiscover {
@@ -56,6 +57,7 @@ func createClient() {
 
 		ConfigClient = configClient
 	}
+	log.Log.Info("connect nacos success")
 }
 
 func clientConf() constant.ClientConfig {
