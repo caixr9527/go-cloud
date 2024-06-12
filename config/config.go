@@ -25,14 +25,13 @@ type config struct {
 	Template  template     `yaml:"template" mapstructure:"template"`
 	Db        dbConfig     `yaml:"db" mapstructure:"db"`
 	Redis     redisConfig  `yaml:"redis" mapstructure:"redis"`
+	Discover  discover     `yaml:"discover" mapstructure:"discover"`
 }
 
 func Init() {
 	once.Do(func() {
-		//data := loadYaml()
-		//loadConfig(data)
 		viper.SetConfigFile("conf/application.yaml")
-
+		viper.WatchConfig()
 		viper.OnConfigChange(func(in fsnotify.Event) {
 			log.Println("reload config")
 			err := viper.Unmarshal(&Cfg)
@@ -40,7 +39,6 @@ func Init() {
 				log.Println(err)
 			}
 		})
-		viper.WatchConfig()
 		err := viper.ReadInConfig()
 		if err != nil {
 			log.Println(err)
