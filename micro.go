@@ -3,16 +3,16 @@ package cloud
 import (
 	"errors"
 	"fmt"
-	"github.com/caixr9527/go-cloud/cache"
+	"github.com/caixr9527/go-cloud/common"
 	"github.com/caixr9527/go-cloud/config"
 	"github.com/caixr9527/go-cloud/internal/middleware"
 	logger "github.com/caixr9527/go-cloud/log"
-	"github.com/caixr9527/go-cloud/orm"
 	"github.com/caixr9527/go-cloud/web"
 	"github.com/caixr9527/go-cloud/web/render"
 	"html/template"
 	"log"
 	"net/http"
+	"sort"
 )
 
 type Engine struct {
@@ -111,10 +111,14 @@ func (e *Engine) run() {
 }
 
 func initialization() {
-	config.Init()
-	logger.Init()
-	orm.Init()
-	cache.Init()
+	sort.Sort(common.ComponentSort(common.Components))
+	for index := range common.Components {
+		common.Components[index].StartUp()
+	}
+	//config.Init()
+	//logger.Init()
+	//orm.Init()
+	//cache.Init()
 }
 
 func (e *Engine) runTLS() {

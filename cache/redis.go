@@ -2,9 +2,11 @@ package cache
 
 import (
 	"context"
+	"github.com/caixr9527/go-cloud/common"
 	"github.com/caixr9527/go-cloud/config"
 	"github.com/caixr9527/go-cloud/log"
 	"github.com/redis/go-redis/v9"
+	"math"
 	"sync"
 	"time"
 )
@@ -17,7 +19,18 @@ type Redis struct {
 var RedisClient *Redis
 var once sync.Once
 
-func Init() {
+type cache struct {
+}
+
+func init() {
+	common.RegisterComponent(&cache{})
+}
+
+func (c *cache) Order() int {
+	return math.MinInt + 3
+}
+
+func (c *cache) StartUp() {
 	if !config.Cfg.Redis.Enable {
 		return
 	}

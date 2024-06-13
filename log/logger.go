@@ -1,10 +1,12 @@
 package log
 
 import (
+	"github.com/caixr9527/go-cloud/common"
 	"github.com/caixr9527/go-cloud/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
+	"math"
 	"os"
 	"sync"
 )
@@ -12,10 +14,21 @@ import (
 var Log *zap.Logger
 var once sync.Once
 
-func Init() {
+type logger struct {
+}
+
+func (l *logger) StartUp() {
 	once.Do(func() {
 		initLogger()
 	})
+}
+
+func init() {
+	common.RegisterComponent(&logger{})
+}
+
+func (l *logger) Order() int {
+	return math.MinInt + 1
 }
 
 func initLogger() {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/caixr9527/go-cloud"
 	"github.com/caixr9527/go-cloud/auth"
+	_ "github.com/caixr9527/go-cloud/cache"
 	"github.com/caixr9527/go-cloud/common"
 	logger "github.com/caixr9527/go-cloud/log"
 	"github.com/caixr9527/go-cloud/web"

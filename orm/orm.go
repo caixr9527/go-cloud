@@ -1,10 +1,12 @@
 package orm
 
 import (
+	"github.com/caixr9527/go-cloud/common"
 	"github.com/caixr9527/go-cloud/config"
 	logger "github.com/caixr9527/go-cloud/log"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"math"
 	"sync"
 	"time"
 )
@@ -12,7 +14,10 @@ import (
 var DB *gorm.DB
 var once sync.Once
 
-func Init() {
+type orm struct {
+}
+
+func (o *orm) StartUp() {
 	if !config.Cfg.Db.Enable {
 		return
 	}
@@ -24,6 +29,14 @@ func Init() {
 			initMysqlConn()
 		}
 	})
+}
+
+func init() {
+	common.RegisterComponent(&orm{})
+}
+
+func (o *orm) Order() int {
+	return math.MinInt + 2
 }
 
 func initMysqlConn() {

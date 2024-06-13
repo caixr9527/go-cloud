@@ -1,9 +1,11 @@
 package config
 
 import (
+	"github.com/caixr9527/go-cloud/common"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 	"log"
+	"math"
 	"sync"
 )
 
@@ -28,7 +30,10 @@ type config struct {
 	Discover  discover     `yaml:"discover" mapstructure:"discover"`
 }
 
-func Init() {
+type conf struct {
+}
+
+func (c *conf) StartUp() {
 	once.Do(func() {
 		viper.SetConfigFile("conf/application.yaml")
 		viper.WatchConfig()
@@ -48,4 +53,12 @@ func Init() {
 			log.Println(err)
 		}
 	})
+}
+
+func init() {
+	common.RegisterComponent(&conf{})
+}
+
+func (c *conf) Order() int {
+	return math.MinInt
 }

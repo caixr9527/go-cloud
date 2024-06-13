@@ -1,6 +1,7 @@
 package discover
 
 import (
+	"github.com/caixr9527/go-cloud/common"
 	"github.com/caixr9527/go-cloud/common/utils/stringUtils"
 	"github.com/caixr9527/go-cloud/config"
 	"github.com/caixr9527/go-cloud/log"
@@ -16,7 +17,18 @@ var ConfigClient config_client.IConfigClient
 var NamingClient naming_client.INamingClient
 var once sync.Once
 
-func Init() {
+func init() {
+	common.RegisterComponent(&discover{})
+}
+
+type discover struct {
+}
+
+func (d *discover) Order() int {
+	return 4
+}
+
+func (d *discover) StartUp() {
 	if !config.Cfg.Discover.EnableDiscover && !config.Cfg.Discover.EnableConfig {
 		return
 	}
