@@ -2,7 +2,7 @@ package cache
 
 import (
 	"context"
-	"github.com/caixr9527/go-cloud/common"
+	"github.com/caixr9527/go-cloud/component"
 	"github.com/caixr9527/go-cloud/config"
 	"github.com/caixr9527/go-cloud/log"
 	"github.com/redis/go-redis/v9"
@@ -23,19 +23,19 @@ type cache struct {
 }
 
 func init() {
-	common.RegisterComponent(&cache{})
+	component.RegisterComponent(&cache{})
 }
 
 func (c *cache) Order() int {
 	return math.MinInt + 3
 }
 
-func (c *cache) StartUp() {
+func (c *cache) Create(s *component.Singleton) {
 	if !config.Cfg.Redis.Enable {
 		return
 	}
 	once.Do(func() {
-		log.Log.Info("init mysql conn")
+		log.Log.Info("init redis conn")
 		client := redis.NewClient(&redis.Options{
 			Network:               config.Cfg.Redis.Network,
 			Addr:                  config.Cfg.Redis.Addr,
@@ -62,11 +62,12 @@ func (c *cache) StartUp() {
 			DisableIndentity:      config.Cfg.Redis.DisableIndentity,
 			IdentitySuffix:        config.Cfg.Redis.IdentitySuffix,
 		})
-		RedisClient = &Redis{
+		redisClient := &Redis{
 			client:  client,
 			context: context.Background(),
 		}
-		log.Log.Info("init mysql conn success")
+		s.Register("redis", redisClient)
+		log.Log.Info("init redis conn success")
 	})
 }
 

@@ -1,7 +1,7 @@
 package log
 
 import (
-	"github.com/caixr9527/go-cloud/common"
+	"github.com/caixr9527/go-cloud/component"
 	"github.com/caixr9527/go-cloud/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -17,22 +17,23 @@ var once sync.Once
 type logger struct {
 }
 
-func (l *logger) StartUp() {
+func (l *logger) Create(s *component.Singleton) {
 	once.Do(func() {
-		initLogger()
+		initLogger(s)
 	})
 }
 
 func init() {
-	common.RegisterComponent(&logger{})
+	component.RegisterComponent(&logger{})
 }
 
 func (l *logger) Order() int {
 	return math.MinInt + 1
 }
 
-func initLogger() {
-	loggerLevel := config.Cfg.Logger.Level
+func initLogger(s *component.Singleton) {
+	//loggerLevel := config.Cfg.Logger.Level
+	loggerLevel := component.SinglePool.Get("config").(config.Configuration).Logger.Level
 	if loggerLevel == "" {
 		loggerLevel = "debug"
 	}
@@ -105,4 +106,5 @@ func initLogger() {
 	} else {
 		Log = zap.New(core, caller)
 	}
+	s.Register("logger", Log)
 }

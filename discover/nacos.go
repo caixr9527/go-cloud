@@ -1,8 +1,8 @@
 package discover
 
 import (
-	"github.com/caixr9527/go-cloud/common"
 	"github.com/caixr9527/go-cloud/common/utils/stringUtils"
+	"github.com/caixr9527/go-cloud/component"
 	"github.com/caixr9527/go-cloud/config"
 	"github.com/caixr9527/go-cloud/log"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients"
@@ -18,7 +18,7 @@ var NamingClient naming_client.INamingClient
 var once sync.Once
 
 func init() {
-	common.RegisterComponent(&discover{})
+	component.RegisterComponent(&discover{})
 }
 
 type discover struct {
@@ -28,16 +28,16 @@ func (d *discover) Order() int {
 	return 4
 }
 
-func (d *discover) StartUp() {
+func (d *discover) Create(s *component.Singleton) {
 	if !config.Cfg.Discover.EnableDiscover && !config.Cfg.Discover.EnableConfig {
 		return
 	}
 	once.Do(func() {
-		createClient()
+		createClient(s)
 	})
 }
 
-func createClient() {
+func createClient(s *component.Singleton) {
 	log.Log.Info("connect nacos")
 	clientConfig := clientConf()
 	serverConfigs := serverConfig()
@@ -52,7 +52,7 @@ func createClient() {
 			log.Log.Error(err.Error())
 			return
 		}
-		NamingClient = namingClient
+		s.Register("namingClient", namingClient)
 	}
 
 	if config.Cfg.Discover.EnableConfig {
@@ -67,7 +67,7 @@ func createClient() {
 			return
 		}
 
-		ConfigClient = configClient
+		s.Register("configClient", configClient)
 	}
 	log.Log.Info("connect nacos success")
 }

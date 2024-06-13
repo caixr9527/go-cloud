@@ -3,7 +3,7 @@ package cloud
 import (
 	"errors"
 	"fmt"
-	"github.com/caixr9527/go-cloud/common"
+	"github.com/caixr9527/go-cloud/component"
 	"github.com/caixr9527/go-cloud/config"
 	"github.com/caixr9527/go-cloud/internal/middleware"
 	logger "github.com/caixr9527/go-cloud/log"
@@ -111,14 +111,10 @@ func (e *Engine) run() {
 }
 
 func initialization() {
-	sort.Sort(common.ComponentSort(common.Components))
-	for index := range common.Components {
-		common.Components[index].StartUp()
+	sort.Sort(component.Sort(component.Components))
+	for index := range component.Components {
+		component.Components[index].Create(component.SinglePool)
 	}
-	//config.Init()
-	//logger.Init()
-	//orm.Init()
-	//cache.Init()
 }
 
 func (e *Engine) runTLS() {

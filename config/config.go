@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/caixr9527/go-cloud/common"
+	"github.com/caixr9527/go-cloud/component"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 	"log"
@@ -9,7 +9,9 @@ import (
 	"sync"
 )
 
-var Cfg config
+type Configuration config
+
+var Cfg Configuration
 var once sync.Once
 
 const (
@@ -33,7 +35,7 @@ type config struct {
 type conf struct {
 }
 
-func (c *conf) StartUp() {
+func (c *conf) Create(s *component.Singleton) {
 	once.Do(func() {
 		viper.SetConfigFile("conf/application.yaml")
 		viper.WatchConfig()
@@ -52,11 +54,12 @@ func (c *conf) StartUp() {
 		if err != nil {
 			log.Println(err)
 		}
+		s.Register("config", Cfg)
 	})
 }
 
 func init() {
-	common.RegisterComponent(&conf{})
+	component.RegisterComponent(&conf{})
 }
 
 func (c *conf) Order() int {

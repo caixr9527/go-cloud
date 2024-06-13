@@ -1,7 +1,7 @@
 package orm
 
 import (
-	"github.com/caixr9527/go-cloud/common"
+	"github.com/caixr9527/go-cloud/component"
 	"github.com/caixr9527/go-cloud/config"
 	logger "github.com/caixr9527/go-cloud/log"
 	"gorm.io/driver/mysql"
@@ -17,7 +17,7 @@ var once sync.Once
 type orm struct {
 }
 
-func (o *orm) StartUp() {
+func (o *orm) Create(s *component.Singleton) {
 	if !config.Cfg.Db.Enable {
 		return
 	}
@@ -26,20 +26,20 @@ func (o *orm) StartUp() {
 		switch t {
 		case "mysql":
 		case "MYSQL":
-			initMysqlConn()
+			initMysqlConn(s)
 		}
 	})
 }
 
 func init() {
-	common.RegisterComponent(&orm{})
+	component.RegisterComponent(&orm{})
 }
 
 func (o *orm) Order() int {
 	return math.MinInt + 2
 }
 
-func initMysqlConn() {
+func initMysqlConn(s *component.Singleton) {
 	logger.Log.Info("init mysql conn")
 	mysqlCfg := config.Cfg.Db.Mysql
 	g := &gorm.Config{
@@ -78,6 +78,6 @@ func initMysqlConn() {
 	if mysqlCfg.MaxIdleTime != 0 {
 		conn.SetConnMaxIdleTime(time.Duration(mysqlCfg.MaxIdleTime))
 	}
-	DB = db
+	s.Register("db", db)
 	logger.Log.Info("init mysql conn success")
 }
