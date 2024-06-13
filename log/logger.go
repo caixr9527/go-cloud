@@ -2,6 +2,7 @@ package log
 
 import (
 	"github.com/caixr9527/go-cloud/component"
+	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/caixr9527/go-cloud/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -32,33 +33,32 @@ func (l *logger) Order() int {
 }
 
 func initLogger(s *component.Singleton) {
-	//loggerLevel := config.Cfg.Logger.Level
-	loggerLevel := component.SinglePool.Get("config").(config.Configuration).Logger.Level
+	loggerLevel := factory.GetConf().Logger.Level
 	if loggerLevel == "" {
 		loggerLevel = "debug"
 	}
-	filename := config.Cfg.Logger.FileName
+	filename := factory.GetConf().Logger.FileName
 	if filename == "" {
 		filename = "./logs/" + loggerLevel + ".log"
 	}
-	maxAge := config.Cfg.Logger.MaxAge
+	maxAge := factory.GetConf().Logger.MaxAge
 	if maxAge == 0 {
 		maxAge = 7
 	}
-	maxSize := config.Cfg.Logger.MaxSize
+	maxSize := factory.GetConf().Logger.MaxSize
 	if maxSize == 0 {
 		maxSize = 100
 	}
-	maxBackups := config.Cfg.Logger.MaxBackups
+	maxBackups := factory.GetConf().Logger.MaxBackups
 	if maxBackups == 0 {
 		maxBackups = 7
 	}
 	hook := lumberjack.Logger{
-		Filename:   filename,                   // 日志文件路径
-		MaxSize:    int(maxSize),               // 每个日志文件保存的大小 单位:M
-		MaxAge:     int(maxAge),                // 文件最多保存多少天
-		MaxBackups: int(maxBackups),            // 日志文件最多保存多少个备份
-		Compress:   config.Cfg.Logger.Compress, // 是否压缩
+		Filename:   filename,                          // 日志文件路径
+		MaxSize:    int(maxSize),                      // 每个日志文件保存的大小 单位:M
+		MaxAge:     int(maxAge),                       // 文件最多保存多少天
+		MaxBackups: int(maxBackups),                   // 日志文件最多保存多少个备份
+		Compress:   factory.GetConf().Logger.Compress, // 是否压缩
 	}
 	encoderConfig := zapcore.EncoderConfig{
 		MessageKey:       "msg",
@@ -97,7 +97,7 @@ func initLogger(s *component.Singleton) {
 
 	// 开启开发模式，堆栈跟踪
 	caller := zap.AddCaller()
-	active := config.Cfg.Cloud.Active
+	active := factory.GetConf().Cloud.Active
 	if active == config.DEV {
 		// 开启文件及行号
 		development := zap.Development()

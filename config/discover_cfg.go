@@ -47,7 +47,7 @@ type server struct {
 	GrpcPort uint64 `yaml:"grpcPort" mapstructure:"grpcPort"`
 }
 
-type discover struct {
+type discoverConfig struct {
 	EnableDiscover bool     `yaml:"enableDiscover"  mapstructure:"enableDiscover"`
 	EnableConfig   bool     `yaml:"enableConfig" mapstructure:"enableConfig"`
 	Client         client   `yaml:"client" mapstructure:"client"`

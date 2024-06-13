@@ -2,7 +2,7 @@ package orm
 
 import (
 	"github.com/caixr9527/go-cloud/component"
-	"github.com/caixr9527/go-cloud/config"
+	"github.com/caixr9527/go-cloud/component/factory"
 	logger "github.com/caixr9527/go-cloud/log"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -18,11 +18,11 @@ type orm struct {
 }
 
 func (o *orm) Create(s *component.Singleton) {
-	if !config.Cfg.Db.Enable {
+	if !factory.GetConf().Db.Enable {
 		return
 	}
 	once.Do(func() {
-		t := config.Cfg.Db.Type
+		t := factory.GetConf().Db.Type
 		switch t {
 		case "mysql":
 		case "MYSQL":
@@ -41,7 +41,7 @@ func (o *orm) Order() int {
 
 func initMysqlConn(s *component.Singleton) {
 	logger.Log.Info("init mysql conn")
-	mysqlCfg := config.Cfg.Db.Mysql
+	mysqlCfg := factory.GetConf().Db.Mysql
 	g := &gorm.Config{
 		PrepareStmt:                              mysqlCfg.PrepareStmt,
 		SkipDefaultTransaction:                   mysqlCfg.SkipDefaultTransaction,

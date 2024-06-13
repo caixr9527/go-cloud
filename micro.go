@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/caixr9527/go-cloud/component"
-	"github.com/caixr9527/go-cloud/config"
+	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/caixr9527/go-cloud/internal/middleware"
 	logger "github.com/caixr9527/go-cloud/log"
 	"github.com/caixr9527/go-cloud/web"
@@ -89,14 +89,14 @@ func (e *Engine) Context() *web.Context {
 }
 
 func (e *Engine) Run() {
-	if config.Cfg.Server.Https.Enable {
+	if factory.GetConf().Server.Https.Enable {
 		e.runTLS()
 	} else {
 		e.run()
 	}
 }
 func (e *Engine) run() {
-	addr := fmt.Sprintf("%s%d", ":", config.Cfg.Server.Port)
+	addr := fmt.Sprintf("%s%d", ":", factory.GetConf().Server.Port)
 	e.trie.Initialization()
 	srv := &http.Server{
 		Addr:         addr,
@@ -118,9 +118,9 @@ func initialization() {
 }
 
 func (e *Engine) runTLS() {
-	addr := fmt.Sprintf("%s%d", ":", config.Cfg.Server.Port)
-	certFile := config.Cfg.Server.Https.CertPath
-	keyFile := config.Cfg.Server.Https.KeyPath
+	addr := fmt.Sprintf("%s%d", ":", factory.GetConf().Server.Port)
+	certFile := factory.GetConf().Server.Https.CertPath
+	keyFile := factory.GetConf().Server.Https.KeyPath
 	e.trie.Initialization()
 	printLog(addr)
 	logger.Log.Info("load cert: " + certFile)
@@ -140,15 +140,15 @@ func printLog(addr string) {
 	fmt.Println("  \\_____|\\____/   \\_____|______\\____/ \\____/|_____/ " + Version)
 	fmt.Println(" ::start on port" + addr)
 	logger.Log.Info("go-cloud start success, start on port" + addr)
-	logger.Log.Info("go-cloud env active: " + config.Cfg.Cloud.Active)
-	if config.Cfg.Template.Path != "" {
-		logger.Log.Info("go-cloud load template: " + config.Cfg.Template.Path)
+	logger.Log.Info("go-cloud env active: " + factory.GetConf().Cloud.Active)
+	if factory.GetConf().Template.Path != "" {
+		logger.Log.Info("go-cloud load template: " + factory.GetConf().Template.Path)
 	}
 }
 
 func (e *Engine) LoadTemplate(ops ...web.TemplateOps) {
 	var funcMap template.FuncMap
-	var pattern = config.Cfg.Template.Path
+	var pattern = factory.GetConf().Template.Path
 	if len(ops) == 0 {
 		funcMap = e.ops.FuncMap
 		if e.ops.TemplatePattern != "" {

@@ -3,18 +3,14 @@ package discover
 import (
 	"github.com/caixr9527/go-cloud/common/utils/stringUtils"
 	"github.com/caixr9527/go-cloud/component"
-	"github.com/caixr9527/go-cloud/config"
+	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/caixr9527/go-cloud/log"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients"
-	"github.com/nacos-group/nacos-sdk-go/v2/clients/config_client"
-	"github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 	"sync"
 )
 
-var ConfigClient config_client.IConfigClient
-var NamingClient naming_client.INamingClient
 var once sync.Once
 
 func init() {
@@ -29,7 +25,7 @@ func (d *discover) Order() int {
 }
 
 func (d *discover) Create(s *component.Singleton) {
-	if !config.Cfg.Discover.EnableDiscover && !config.Cfg.Discover.EnableConfig {
+	if !factory.GetConf().Discover.EnableDiscover && !factory.GetConf().Discover.EnableConfig {
 		return
 	}
 	once.Do(func() {
@@ -41,7 +37,7 @@ func createClient(s *component.Singleton) {
 	log.Log.Info("connect nacos")
 	clientConfig := clientConf()
 	serverConfigs := serverConfig()
-	if config.Cfg.Discover.EnableDiscover {
+	if factory.GetConf().Discover.EnableDiscover {
 		namingClient, err := clients.NewNamingClient(
 			vo.NacosClientParam{
 				ClientConfig:  &clientConfig,
@@ -55,7 +51,7 @@ func createClient(s *component.Singleton) {
 		s.Register("namingClient", namingClient)
 	}
 
-	if config.Cfg.Discover.EnableConfig {
+	if factory.GetConf().Discover.EnableConfig {
 		configClient, err := clients.NewConfigClient(
 			vo.NacosClientParam{
 				ClientConfig:  &clientConfig,
@@ -73,7 +69,7 @@ func createClient(s *component.Singleton) {
 }
 
 func clientConf() constant.ClientConfig {
-	cf := config.Cfg.Discover.Client
+	cf := factory.GetConf().Discover.Client
 	clientConfig := constant.ClientConfig{}
 	if cf.TimeoutMs != 0 {
 		clientConfig.TimeoutMs = cf.TimeoutMs
@@ -118,7 +114,7 @@ func clientConf() constant.ClientConfig {
 }
 
 func serverConfig() []constant.ServerConfig {
-	s := config.Cfg.Discover.Server
+	s := factory.GetConf().Discover.Server
 	var serverConfigs []constant.ServerConfig
 	for index := range s {
 		sf := s[index]

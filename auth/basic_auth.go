@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"github.com/caixr9527/go-cloud/config"
+	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/caixr9527/go-cloud/web"
 	"net/http"
 )
@@ -14,7 +14,7 @@ func BasicAuth(context *web.Context) {
 		unAuth(context, "basic auth require")
 		return
 	}
-	if config.Cfg.BasicAuth.Username != username || password != config.Cfg.BasicAuth.Password {
+	if factory.GetConf().BasicAuth.Username != username || password != factory.GetConf().BasicAuth.Password {
 		unAuth(context, "Authentication failed")
 		return
 	}
@@ -23,7 +23,7 @@ func BasicAuth(context *web.Context) {
 }
 
 func unAuth(context *web.Context, msg string) {
-	context.W.Header().Set("WWW-Authenticate", config.Cfg.BasicAuth.Realm)
+	context.W.Header().Set("WWW-Authenticate", factory.GetConf().BasicAuth.Realm)
 	context.Fail(http.StatusUnauthorized, msg)
 	context.Abort()
 }
