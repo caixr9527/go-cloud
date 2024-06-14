@@ -1,7 +1,8 @@
 package web
 
 import (
-	logger "github.com/caixr9527/go-cloud/log"
+	"github.com/caixr9527/go-cloud/component/factory"
+	"go.uber.org/zap"
 	"strings"
 	"sync"
 )
@@ -103,7 +104,8 @@ func (curNode *TreeNode) insert(routeStringSlice []string, index int, handlerInd
 
 // 注册路由组到前缀树
 func (t *Trie) Group(routeString string) *Trie {
-	logger.Log.Debug("add group: " + routeString)
+	logger := factory.Get(&zap.Logger{})
+	logger.Debug("add group: " + routeString)
 	return t.groupHandleIndex(routeString, 0)
 }
 
@@ -198,7 +200,8 @@ func (curNode *TreeNode) Match(routeStringSlice []string, index int, RouteParamM
 
 // 增加路由
 func (t *Trie) AddRoute(routeName string, handler ...Handler) *Trie {
-	logger.Log.Debug("add route: " + routeName)
+	logger := factory.Get(&zap.Logger{})
+	logger.Debug("add route: " + routeName)
 	eStart.HandlerSlice = append(eStart.HandlerSlice, handler)
 	t = t.groupHandleIndex(routeName, len(eStart.HandlerSlice))
 	return t

@@ -6,8 +6,9 @@ import (
 	"github.com/caixr9527/go-cloud/auth"
 	_ "github.com/caixr9527/go-cloud/cache"
 	"github.com/caixr9527/go-cloud/common"
-	logger "github.com/caixr9527/go-cloud/log"
+	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/caixr9527/go-cloud/web"
+	"go.uber.org/zap"
 	"log"
 	"net/http"
 	"testing"
@@ -195,16 +196,17 @@ func TestRun(t *testing.T) {
 		//user := &User{}
 		users := make([]User, 0)
 		//var str string
+		logger := factory.Get(&zap.Logger{})
 		err := context.Bind(&users)
 		if err != nil {
-			logger.Log.Error(err.Error())
+			logger.Error(err.Error())
 			context.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
-		logger.Log.Debug("Debug")
-		logger.Log.Info("Info")
-		logger.Log.Warn("Warn")
-		logger.Log.Error("Error")
+		logger.Debug("Debug")
+		logger.Info("Info")
+		logger.Warn("Warn")
+		logger.Error("Error")
 		context.JSON(http.StatusOK, users)
 	})
 	config := &auth.JwtToken{

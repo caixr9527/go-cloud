@@ -2,8 +2,9 @@ package middleware
 
 import (
 	"fmt"
-	logger "github.com/caixr9527/go-cloud/log"
+	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/caixr9527/go-cloud/web"
+	"go.uber.org/zap"
 	"net"
 	"strings"
 	"time"
@@ -27,5 +28,6 @@ func Logging(context *web.Context) {
 	if raw != "" {
 		path = path + "?" + raw
 	}
-	logger.Log.Debug(fmt.Sprintf("ip: %s, method: %s, path: %s, status: %3d, cost: %v ", clientIp, method, path, statusCode, latency))
+	logger := factory.Get(&zap.Logger{})
+	logger.Debug(fmt.Sprintf("ip: %s, method: %s, path: %s, status: %3d, cost: %v ", clientIp, method, path, statusCode, latency))
 }
