@@ -2,8 +2,9 @@ package cache
 
 import (
 	"context"
-	"github.com/caixr9527/go-cloud/log"
+	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
 	"time"
 )
 
@@ -94,6 +95,7 @@ func (r *Redis) Exists(keys ...string) (int64, error) {
 
 func (r *Redis) printLog(err error) {
 	if err != nil {
-		log.Log.Error(err.Error())
+		logger := factory.Get(&zap.Logger{})
+		logger.Error(err.Error())
 	}
 }
