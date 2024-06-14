@@ -5,8 +5,8 @@ import (
 	"github.com/caixr9527/go-cloud/component"
 	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/caixr9527/go-cloud/config"
-	"github.com/caixr9527/go-cloud/log"
 	"github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
 	"math"
 	"reflect"
 	"sync"
@@ -27,12 +27,13 @@ func (c *cache) Order() int {
 }
 
 func (c *cache) Create(s *component.Singleton) {
-	configuration, _ := factory.Get(config.Configuration{})
+	configuration := factory.Get(config.Configuration{})
 	if !configuration.Redis.Enable {
 		return
 	}
+	logger := factory.Get(&zap.Logger{})
 	once.Do(func() {
-		log.Log.Info("init redis conn")
+		logger.Info("init redis conn")
 		client := redis.NewClient(&redis.Options{
 			Network:               configuration.Redis.Network,
 			Addr:                  configuration.Redis.Addr,
@@ -64,6 +65,6 @@ func (c *cache) Create(s *component.Singleton) {
 			Context: context.Background(),
 		}
 		s.Register(reflect.TypeOf(redisClient).Name(), redisClient)
-		log.Log.Info("init redis conn success")
+		logger.Info("init redis conn success")
 	})
 }
