@@ -13,7 +13,7 @@ import (
 	"sync"
 )
 
-var Log *zap.Logger
+// var Log *zap.Logger
 var once sync.Once
 
 type logger struct {
@@ -34,7 +34,7 @@ func (l *logger) Order() int {
 }
 
 func initLogger(s *component.Singleton) {
-	configuration, _ := factory.Get(config.Configuration{})
+	configuration := factory.Get(config.Configuration{})
 	loggerLevel := configuration.Logger.Level
 	if loggerLevel == "" {
 		loggerLevel = "debug"
@@ -100,6 +100,7 @@ func initLogger(s *component.Singleton) {
 	// 开启开发模式，堆栈跟踪
 	caller := zap.AddCaller()
 	active := configuration.Cloud.Active
+	var Log *zap.Logger
 	if active == config.DEV {
 		// 开启文件及行号
 		development := zap.Development()
@@ -108,5 +109,7 @@ func initLogger(s *component.Singleton) {
 	} else {
 		Log = zap.New(core, caller)
 	}
-	s.Register(reflect.TypeOf(Log).Name(), Log)
+	typeOf := reflect.TypeOf(Log)
+	name := typeOf.Elem().Name()
+	s.Register(name, Log)
 }

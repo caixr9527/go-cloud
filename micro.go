@@ -7,9 +7,10 @@ import (
 	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/caixr9527/go-cloud/config"
 	"github.com/caixr9527/go-cloud/internal/middleware"
-	logger "github.com/caixr9527/go-cloud/log"
+	_ "github.com/caixr9527/go-cloud/log"
 	"github.com/caixr9527/go-cloud/web"
 	"github.com/caixr9527/go-cloud/web/render"
+	"go.uber.org/zap"
 	"html/template"
 	"log"
 	"net/http"
@@ -90,7 +91,7 @@ func (e *Engine) Context() *web.Context {
 }
 
 func (e *Engine) Run() {
-	configuration, _ := factory.Get(config.Configuration{})
+	configuration := factory.Get(config.Configuration{})
 	if configuration.Server.Https.Enable {
 		e.runTLS(configuration)
 	} else {
@@ -120,13 +121,14 @@ func initialization() {
 }
 
 func (e *Engine) runTLS(configuration config.Configuration) {
+	logger := factory.Get(&zap.Logger{})
 	addr := fmt.Sprintf("%s%d", ":", configuration.Server.Port)
 	certFile := configuration.Server.Https.CertPath
 	keyFile := configuration.Server.Https.KeyPath
 	e.trie.Initialization()
 	printLog(configuration, addr)
-	logger.Log.Info("load cert: " + certFile)
-	logger.Log.Info("load key: " + keyFile)
+	logger.Info("load cert: " + certFile)
+	logger.Info("load key: " + keyFile)
 	err := http.ListenAndServeTLS(addr, certFile, keyFile, e)
 	if err != nil {
 		log.Fatalf("listen: %s\n", err)
@@ -141,15 +143,16 @@ func printLog(configuration config.Configuration, addr string) {
 	fmt.Println(" | |__| | |__| | | |____| |___| |__| | |__| | |__| |")
 	fmt.Println("  \\_____|\\____/   \\_____|______\\____/ \\____/|_____/ " + Version)
 	fmt.Println(" ::start on port" + addr)
-	logger.Log.Info("go-cloud start success, start on port" + addr)
-	logger.Log.Info("go-cloud env active: " + configuration.Cloud.Active)
+	logger := factory.Get(&zap.Logger{})
+	logger.Info("go-cloud start success, start on port" + addr)
+	logger.Info("go-cloud env active: " + configuration.Cloud.Active)
 	if configuration.Template.Path != "" {
-		logger.Log.Info("go-cloud load template: " + configuration.Template.Path)
+		logger.Info("go-cloud load template: " + configuration.Template.Path)
 	}
 }
 
 func (e *Engine) LoadTemplate(ops ...web.TemplateOps) {
-	configuration, _ := factory.Get(config.Configuration{})
+	configuration := factory.Get(config.Configuration{})
 	var funcMap template.FuncMap
 	var pattern = configuration.Template.Path
 	if len(ops) == 0 {
