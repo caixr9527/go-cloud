@@ -82,6 +82,6 @@ func initMysqlConn(s *component.Singleton) {
 	if mysqlCfg.MaxIdleTime != 0 {
 		conn.SetConnMaxIdleTime(time.Duration(mysqlCfg.MaxIdleTime))
 	}
-	s.Register(reflect.TypeOf(db).Name(), db)
+	s.Register(reflect.TypeOf(db).String(), db)
 	logger.Info("init mysql conn success")
 }

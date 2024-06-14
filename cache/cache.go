@@ -64,7 +64,7 @@ func (c *cache) Create(s *component.Singleton) {
 			Client:  client,
 			Context: context.Background(),
 		}
-		s.Register(reflect.TypeOf(redisClient).Name(), redisClient)
+		s.Register(reflect.TypeOf(redisClient).String(), redisClient)
 		logger.Info("init redis conn success")
 	})
 }

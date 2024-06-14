@@ -55,7 +55,7 @@ func (c *conf) Create(s *component.Singleton) {
 		if err != nil {
 			log.Println(err)
 		}
-		s.Register(reflect.TypeOf(cfg).Name(), cfg)
+		s.Register(reflect.TypeOf(cfg).String(), cfg)
 	})
 }
 

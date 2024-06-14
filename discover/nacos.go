@@ -53,7 +53,7 @@ func createClient(s *component.Singleton) {
 			logger.Error(err.Error())
 			return
 		}
-		s.Register(reflect.TypeOf(namingClient).Name(), namingClient)
+		s.Register(reflect.TypeOf(namingClient).String(), namingClient)
 	}
 
 	if configuration.Discover.EnableConfig {
@@ -67,7 +67,7 @@ func createClient(s *component.Singleton) {
 			logger.Error(err.Error())
 			return
 		}
-		s.Register(reflect.TypeOf(configClient).Name(), configClient)
+		s.Register(reflect.TypeOf(configClient).String(), configClient)
 	}
 	logger.Info("connect nacos success")
 }

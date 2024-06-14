@@ -110,6 +110,5 @@ func initLogger(s *component.Singleton) {
 		Log = zap.New(core, caller)
 	}
 	typeOf := reflect.TypeOf(Log)
-	name := typeOf.Elem().Name()
-	s.Register(name, Log)
+	s.Register(typeOf.Elem().String(), Log)
 }
