@@ -9,6 +9,7 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 	"math"
 	"os"
+	"reflect"
 	"sync"
 )
 
@@ -33,32 +34,33 @@ func (l *logger) Order() int {
 }
 
 func initLogger(s *component.Singleton) {
-	loggerLevel := factory.GetConf().Logger.Level
+	configuration, _ := factory.Get(config.Configuration{})
+	loggerLevel := configuration.Logger.Level
 	if loggerLevel == "" {
 		loggerLevel = "debug"
 	}
-	filename := factory.GetConf().Logger.FileName
+	filename := configuration.Logger.FileName
 	if filename == "" {
 		filename = "./logs/" + loggerLevel + ".log"
 	}
-	maxAge := factory.GetConf().Logger.MaxAge
+	maxAge := configuration.Logger.MaxAge
 	if maxAge == 0 {
 		maxAge = 7
 	}
-	maxSize := factory.GetConf().Logger.MaxSize
+	maxSize := configuration.Logger.MaxSize
 	if maxSize == 0 {
 		maxSize = 100
 	}
-	maxBackups := factory.GetConf().Logger.MaxBackups
+	maxBackups := configuration.Logger.MaxBackups
 	if maxBackups == 0 {
 		maxBackups = 7
 	}
 	hook := lumberjack.Logger{
-		Filename:   filename,                          // 日志文件路径
-		MaxSize:    int(maxSize),                      // 每个日志文件保存的大小 单位:M
-		MaxAge:     int(maxAge),                       // 文件最多保存多少天
-		MaxBackups: int(maxBackups),                   // 日志文件最多保存多少个备份
-		Compress:   factory.GetConf().Logger.Compress, // 是否压缩
+		Filename:   filename,                      // 日志文件路径
+		MaxSize:    int(maxSize),                  // 每个日志文件保存的大小 单位:M
+		MaxAge:     int(maxAge),                   // 文件最多保存多少天
+		MaxBackups: int(maxBackups),               // 日志文件最多保存多少个备份
+		Compress:   configuration.Logger.Compress, // 是否压缩
 	}
 	encoderConfig := zapcore.EncoderConfig{
 		MessageKey:       "msg",
@@ -97,7 +99,7 @@ func initLogger(s *component.Singleton) {
 
 	// 开启开发模式，堆栈跟踪
 	caller := zap.AddCaller()
-	active := factory.GetConf().Cloud.Active
+	active := configuration.Cloud.Active
 	if active == config.DEV {
 		// 开启文件及行号
 		development := zap.Development()
@@ -106,5 +108,5 @@ func initLogger(s *component.Singleton) {
 	} else {
 		Log = zap.New(core, caller)
 	}
-	s.Register("logger", Log)
+	s.Register(reflect.TypeOf(Log).Name(), Log)
 }

@@ -6,12 +6,12 @@ import (
 	"github.com/spf13/viper"
 	"log"
 	"math"
+	"reflect"
 	"sync"
 )
 
 type Configuration config
 
-var cfg Configuration
 var once sync.Once
 
 const (
@@ -37,6 +37,7 @@ type conf struct {
 
 func (c *conf) Create(s *component.Singleton) {
 	once.Do(func() {
+		var cfg Configuration
 		viper.SetConfigFile("conf/application.yaml")
 		viper.WatchConfig()
 		viper.OnConfigChange(func(in fsnotify.Event) {
@@ -54,7 +55,7 @@ func (c *conf) Create(s *component.Singleton) {
 		if err != nil {
 			log.Println(err)
 		}
-		s.Register("config", cfg)
+		s.Register(reflect.TypeOf(cfg).Name(), cfg)
 	})
 }
 

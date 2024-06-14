@@ -4,10 +4,12 @@ import (
 	"github.com/caixr9527/go-cloud/common/utils/stringUtils"
 	"github.com/caixr9527/go-cloud/component"
 	"github.com/caixr9527/go-cloud/component/factory"
+	"github.com/caixr9527/go-cloud/config"
 	"github.com/caixr9527/go-cloud/log"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
+	"reflect"
 	"sync"
 )
 
@@ -25,7 +27,8 @@ func (d *discover) Order() int {
 }
 
 func (d *discover) Create(s *component.Singleton) {
-	if !factory.GetConf().Discover.EnableDiscover && !factory.GetConf().Discover.EnableConfig {
+	configuration, _ := factory.Get(config.Configuration{})
+	if !configuration.Discover.EnableDiscover && !configuration.Discover.EnableConfig {
 		return
 	}
 	once.Do(func() {
@@ -34,10 +37,11 @@ func (d *discover) Create(s *component.Singleton) {
 }
 
 func createClient(s *component.Singleton) {
+	configuration, _ := factory.Get(config.Configuration{})
 	log.Log.Info("connect nacos")
-	clientConfig := clientConf()
-	serverConfigs := serverConfig()
-	if factory.GetConf().Discover.EnableDiscover {
+	clientConfig := clientConf(configuration)
+	serverConfigs := serverConfig(configuration)
+	if configuration.Discover.EnableDiscover {
 		namingClient, err := clients.NewNamingClient(
 			vo.NacosClientParam{
 				ClientConfig:  &clientConfig,
@@ -48,10 +52,10 @@ func createClient(s *component.Singleton) {
 			log.Log.Error(err.Error())
 			return
 		}
-		s.Register("namingClient", namingClient)
+		s.Register(reflect.TypeOf(namingClient).Name(), namingClient)
 	}
 
-	if factory.GetConf().Discover.EnableConfig {
+	if configuration.Discover.EnableConfig {
 		configClient, err := clients.NewConfigClient(
 			vo.NacosClientParam{
 				ClientConfig:  &clientConfig,
@@ -62,14 +66,13 @@ func createClient(s *component.Singleton) {
 			log.Log.Error(err.Error())
 			return
 		}
-
-		s.Register("configClient", configClient)
+		s.Register(reflect.TypeOf(configClient).Name(), configClient)
 	}
 	log.Log.Info("connect nacos success")
 }
 
-func clientConf() constant.ClientConfig {
-	cf := factory.GetConf().Discover.Client
+func clientConf(configuration config.Configuration) constant.ClientConfig {
+	cf := configuration.Discover.Client
 	clientConfig := constant.ClientConfig{}
 	if cf.TimeoutMs != 0 {
 		clientConfig.TimeoutMs = cf.TimeoutMs
@@ -113,8 +116,8 @@ func clientConf() constant.ClientConfig {
 	return clientConfig
 }
 
-func serverConfig() []constant.ServerConfig {
-	s := factory.GetConf().Discover.Server
+func serverConfig(configuration config.Configuration) []constant.ServerConfig {
+	s := configuration.Discover.Server
 	var serverConfigs []constant.ServerConfig
 	for index := range s {
 		sf := s[index]

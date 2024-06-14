@@ -3,6 +3,7 @@ package auth
 import (
 	"github.com/caixr9527/go-cloud/common/utils/sliceUtils"
 	"github.com/caixr9527/go-cloud/component/factory"
+	"github.com/caixr9527/go-cloud/config"
 	"github.com/caixr9527/go-cloud/web"
 	"github.com/golang-jwt/jwt/v5"
 	"net/http"
@@ -54,15 +55,16 @@ func (jt *JwtToken) CreateToken(claims map[string]any) (*JwtResponse, error) {
 }
 
 func Token(context *web.Context) {
-	whitelist := factory.GetConf().Jwt.Allow
+	configuration, _ := factory.Get(config.Configuration{})
+	whitelist := configuration.Jwt.Allow
 	if whitelist != nil && len(whitelist) > 0 && sliceUtils.ContainsString(whitelist, context.R.URL.Path) {
 		return
 	}
 	var header string
-	if factory.GetConf().Jwt.Header == "" {
+	if configuration.Jwt.Header == "" {
 		header = TOKEN
 	} else {
-		header = factory.GetConf().Jwt.Header
+		header = configuration.Jwt.Header
 	}
 	token := context.R.Header.Get(header)
 	if token == "" {
@@ -73,7 +75,7 @@ func Token(context *web.Context) {
 		}
 	}
 	t, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		return []byte(factory.GetConf().Jwt.SecretKey), nil
+		return []byte(configuration.Jwt.SecretKey), nil
 	})
 	if err != nil {
 		unAuthHandler(context, err.Error())

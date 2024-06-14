@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/caixr9527/go-cloud/component"
 	"github.com/caixr9527/go-cloud/component/factory"
+	"github.com/caixr9527/go-cloud/config"
 	"github.com/caixr9527/go-cloud/internal/middleware"
 	logger "github.com/caixr9527/go-cloud/log"
 	"github.com/caixr9527/go-cloud/web"
@@ -89,14 +90,15 @@ func (e *Engine) Context() *web.Context {
 }
 
 func (e *Engine) Run() {
-	if factory.GetConf().Server.Https.Enable {
-		e.runTLS()
+	configuration, _ := factory.Get(config.Configuration{})
+	if configuration.Server.Https.Enable {
+		e.runTLS(configuration)
 	} else {
-		e.run()
+		e.run(configuration)
 	}
 }
-func (e *Engine) run() {
-	addr := fmt.Sprintf("%s%d", ":", factory.GetConf().Server.Port)
+func (e *Engine) run(configuration config.Configuration) {
+	addr := fmt.Sprintf("%s%d", ":", configuration.Server.Port)
 	e.trie.Initialization()
 	srv := &http.Server{
 		Addr:         addr,
@@ -104,7 +106,7 @@ func (e *Engine) run() {
 		ReadTimeout:  0,
 		WriteTimeout: 0,
 	}
-	printLog(addr)
+	printLog(configuration, addr)
 	if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("listen: %s\n", err)
 	}
@@ -117,12 +119,12 @@ func initialization() {
 	}
 }
 
-func (e *Engine) runTLS() {
-	addr := fmt.Sprintf("%s%d", ":", factory.GetConf().Server.Port)
-	certFile := factory.GetConf().Server.Https.CertPath
-	keyFile := factory.GetConf().Server.Https.KeyPath
+func (e *Engine) runTLS(configuration config.Configuration) {
+	addr := fmt.Sprintf("%s%d", ":", configuration.Server.Port)
+	certFile := configuration.Server.Https.CertPath
+	keyFile := configuration.Server.Https.KeyPath
 	e.trie.Initialization()
-	printLog(addr)
+	printLog(configuration, addr)
 	logger.Log.Info("load cert: " + certFile)
 	logger.Log.Info("load key: " + keyFile)
 	err := http.ListenAndServeTLS(addr, certFile, keyFile, e)
@@ -131,7 +133,7 @@ func (e *Engine) runTLS() {
 	}
 }
 
-func printLog(addr string) {
+func printLog(configuration config.Configuration, addr string) {
 	fmt.Println("   _____  ____     _____ _      ____  _    _ _____  ")
 	fmt.Println("  / ____|/ __ \\   / ____| |    / __ \\| |  | |  __ \\ ")
 	fmt.Println(" | |  __| |  | | | |    | |   | |  | | |  | | |  | |")
@@ -140,15 +142,16 @@ func printLog(addr string) {
 	fmt.Println("  \\_____|\\____/   \\_____|______\\____/ \\____/|_____/ " + Version)
 	fmt.Println(" ::start on port" + addr)
 	logger.Log.Info("go-cloud start success, start on port" + addr)
-	logger.Log.Info("go-cloud env active: " + factory.GetConf().Cloud.Active)
-	if factory.GetConf().Template.Path != "" {
-		logger.Log.Info("go-cloud load template: " + factory.GetConf().Template.Path)
+	logger.Log.Info("go-cloud env active: " + configuration.Cloud.Active)
+	if configuration.Template.Path != "" {
+		logger.Log.Info("go-cloud load template: " + configuration.Template.Path)
 	}
 }
 
 func (e *Engine) LoadTemplate(ops ...web.TemplateOps) {
+	configuration, _ := factory.Get(config.Configuration{})
 	var funcMap template.FuncMap
-	var pattern = factory.GetConf().Template.Path
+	var pattern = configuration.Template.Path
 	if len(ops) == 0 {
 		funcMap = e.ops.FuncMap
 		if e.ops.TemplatePattern != "" {

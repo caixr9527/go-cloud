@@ -3,26 +3,29 @@ package orm
 import (
 	"github.com/caixr9527/go-cloud/component"
 	"github.com/caixr9527/go-cloud/component/factory"
+	"github.com/caixr9527/go-cloud/config"
 	logger "github.com/caixr9527/go-cloud/log"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"math"
+	"reflect"
 	"sync"
 	"time"
 )
 
-var DB *gorm.DB
 var once sync.Once
 
 type orm struct {
 }
 
+var configuration, _ = factory.Get(config.Configuration{})
+
 func (o *orm) Create(s *component.Singleton) {
-	if !factory.GetConf().Db.Enable {
+	if !configuration.Db.Enable {
 		return
 	}
 	once.Do(func() {
-		t := factory.GetConf().Db.Type
+		t := configuration.Db.Type
 		switch t {
 		case "mysql":
 		case "MYSQL":
@@ -41,7 +44,7 @@ func (o *orm) Order() int {
 
 func initMysqlConn(s *component.Singleton) {
 	logger.Log.Info("init mysql conn")
-	mysqlCfg := factory.GetConf().Db.Mysql
+	mysqlCfg := configuration.Db.Mysql
 	g := &gorm.Config{
 		PrepareStmt:                              mysqlCfg.PrepareStmt,
 		SkipDefaultTransaction:                   mysqlCfg.SkipDefaultTransaction,
@@ -78,6 +81,6 @@ func initMysqlConn(s *component.Singleton) {
 	if mysqlCfg.MaxIdleTime != 0 {
 		conn.SetConnMaxIdleTime(time.Duration(mysqlCfg.MaxIdleTime))
 	}
-	s.Register("db", db)
+	s.Register(reflect.TypeOf(db).Name(), db)
 	logger.Log.Info("init mysql conn success")
 }

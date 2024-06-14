@@ -2,12 +2,13 @@ package cache
 
 import (
 	"context"
-	redis2 "github.com/caixr9527/go-cloud/cache/redis"
 	"github.com/caixr9527/go-cloud/component"
 	"github.com/caixr9527/go-cloud/component/factory"
+	"github.com/caixr9527/go-cloud/config"
 	"github.com/caixr9527/go-cloud/log"
 	"github.com/redis/go-redis/v9"
 	"math"
+	"reflect"
 	"sync"
 	"time"
 )
@@ -26,42 +27,43 @@ func (c *cache) Order() int {
 }
 
 func (c *cache) Create(s *component.Singleton) {
-	if !factory.GetConf().Redis.Enable {
+	configuration, _ := factory.Get(config.Configuration{})
+	if !configuration.Redis.Enable {
 		return
 	}
 	once.Do(func() {
 		log.Log.Info("init redis conn")
 		client := redis.NewClient(&redis.Options{
-			Network:               factory.GetConf().Redis.Network,
-			Addr:                  factory.GetConf().Redis.Addr,
-			ClientName:            factory.GetConf().Redis.ClientName,
-			Protocol:              factory.GetConf().Redis.Protocol,
-			Username:              factory.GetConf().Redis.Username,
-			Password:              factory.GetConf().Redis.Password,
-			DB:                    factory.GetConf().Redis.DB,
-			MaxRetries:            factory.GetConf().Redis.MaxRetries,
-			MinRetryBackoff:       time.Duration(factory.GetConf().Redis.MinRetryBackoff),
-			MaxRetryBackoff:       time.Duration(factory.GetConf().Redis.MaxRetryBackoff),
-			DialTimeout:           time.Duration(factory.GetConf().Redis.DialTimeout),
-			ReadTimeout:           time.Duration(factory.GetConf().Redis.ReadTimeout),
-			WriteTimeout:          time.Duration(factory.GetConf().Redis.WriteTimeout),
-			ContextTimeoutEnabled: factory.GetConf().Redis.ContextTimeoutEnabled,
-			PoolFIFO:              factory.GetConf().Redis.PoolFIFO,
-			PoolSize:              factory.GetConf().Redis.PoolSize,
-			PoolTimeout:           time.Duration(factory.GetConf().Redis.PoolTimeout),
-			MinIdleConns:          factory.GetConf().Redis.MinIdleConns,
-			MaxIdleConns:          factory.GetConf().Redis.MaxIdleConns,
-			MaxActiveConns:        factory.GetConf().Redis.MaxActiveConns,
-			ConnMaxIdleTime:       time.Duration(factory.GetConf().Redis.ConnMaxIdleTime),
-			ConnMaxLifetime:       time.Duration(factory.GetConf().Redis.ConnMaxLifetime),
-			DisableIndentity:      factory.GetConf().Redis.DisableIndentity,
-			IdentitySuffix:        factory.GetConf().Redis.IdentitySuffix,
+			Network:               configuration.Redis.Network,
+			Addr:                  configuration.Redis.Addr,
+			ClientName:            configuration.Redis.ClientName,
+			Protocol:              configuration.Redis.Protocol,
+			Username:              configuration.Redis.Username,
+			Password:              configuration.Redis.Password,
+			DB:                    configuration.Redis.DB,
+			MaxRetries:            configuration.Redis.MaxRetries,
+			MinRetryBackoff:       time.Duration(configuration.Redis.MinRetryBackoff),
+			MaxRetryBackoff:       time.Duration(configuration.Redis.MaxRetryBackoff),
+			DialTimeout:           time.Duration(configuration.Redis.DialTimeout),
+			ReadTimeout:           time.Duration(configuration.Redis.ReadTimeout),
+			WriteTimeout:          time.Duration(configuration.Redis.WriteTimeout),
+			ContextTimeoutEnabled: configuration.Redis.ContextTimeoutEnabled,
+			PoolFIFO:              configuration.Redis.PoolFIFO,
+			PoolSize:              configuration.Redis.PoolSize,
+			PoolTimeout:           time.Duration(configuration.Redis.PoolTimeout),
+			MinIdleConns:          configuration.Redis.MinIdleConns,
+			MaxIdleConns:          configuration.Redis.MaxIdleConns,
+			MaxActiveConns:        configuration.Redis.MaxActiveConns,
+			ConnMaxIdleTime:       time.Duration(configuration.Redis.ConnMaxIdleTime),
+			ConnMaxLifetime:       time.Duration(configuration.Redis.ConnMaxLifetime),
+			DisableIndentity:      configuration.Redis.DisableIndentity,
+			IdentitySuffix:        configuration.Redis.IdentitySuffix,
 		})
-		redisClient := &redis2.Redis{
+		redisClient := &Redis{
 			Client:  client,
 			Context: context.Background(),
 		}
-		s.Register("redis", redisClient)
+		s.Register(reflect.TypeOf(redisClient).Name(), redisClient)
 		log.Log.Info("init redis conn success")
 	})
 }
