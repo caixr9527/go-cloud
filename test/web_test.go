@@ -192,7 +192,24 @@ func TestRun(t *testing.T) {
 		context.JSON(http.StatusOK, user)
 	})
 
-	orderGroup.GET("/bind4", func(context *web.Context) {
+	orderGroup.POST("/bind4", func(context *web.Context) {
+		//user := &User{}
+		users := make([]User, 0)
+		//var str string
+		logger := factory.Get(&zap.Logger{})
+		err := context.Bind(&users)
+		if err != nil {
+			logger.Error(err.Error())
+			context.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
+		logger.Debug("Debug")
+		logger.Info("Info")
+		logger.Warn("Warn")
+		logger.Error("Error")
+		context.JSON(http.StatusOK, users)
+	})
+	orderGroup.POST("/bind5", func(context *web.Context) {
 		//user := &User{}
 		users := make([]User, 0)
 		//var str string
