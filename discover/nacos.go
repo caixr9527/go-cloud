@@ -5,10 +5,10 @@ import (
 	"github.com/caixr9527/go-cloud/component"
 	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/caixr9527/go-cloud/config"
-	"github.com/caixr9527/go-cloud/log"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
+	"go.uber.org/zap"
 	"reflect"
 	"sync"
 )
@@ -27,7 +27,7 @@ func (d *discover) Order() int {
 }
 
 func (d *discover) Create(s *component.Singleton) {
-	configuration, _ := factory.Get(config.Configuration{})
+	configuration := factory.Get(config.Configuration{})
 	if !configuration.Discover.EnableDiscover && !configuration.Discover.EnableConfig {
 		return
 	}
@@ -37,8 +37,9 @@ func (d *discover) Create(s *component.Singleton) {
 }
 
 func createClient(s *component.Singleton) {
-	configuration, _ := factory.Get(config.Configuration{})
-	log.Log.Info("connect nacos")
+	configuration := factory.Get(config.Configuration{})
+	logger := factory.Get(&zap.Logger{})
+	logger.Info("connect nacos")
 	clientConfig := clientConf(configuration)
 	serverConfigs := serverConfig(configuration)
 	if configuration.Discover.EnableDiscover {
@@ -49,7 +50,7 @@ func createClient(s *component.Singleton) {
 			},
 		)
 		if err != nil {
-			log.Log.Error(err.Error())
+			logger.Error(err.Error())
 			return
 		}
 		s.Register(reflect.TypeOf(namingClient).Name(), namingClient)
@@ -63,12 +64,12 @@ func createClient(s *component.Singleton) {
 			},
 		)
 		if err != nil {
-			log.Log.Error(err.Error())
+			logger.Error(err.Error())
 			return
 		}
 		s.Register(reflect.TypeOf(configClient).Name(), configClient)
 	}
-	log.Log.Info("connect nacos success")
+	logger.Info("connect nacos success")
 }
 
 func clientConf(configuration config.Configuration) constant.ClientConfig {

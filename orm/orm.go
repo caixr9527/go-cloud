@@ -4,7 +4,7 @@ import (
 	"github.com/caixr9527/go-cloud/component"
 	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/caixr9527/go-cloud/config"
-	logger "github.com/caixr9527/go-cloud/log"
+	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"math"
@@ -18,9 +18,8 @@ var once sync.Once
 type orm struct {
 }
 
-var configuration, _ = factory.Get(config.Configuration{})
-
 func (o *orm) Create(s *component.Singleton) {
+	configuration := factory.Get(config.Configuration{})
 	if !configuration.Db.Enable {
 		return
 	}
@@ -43,7 +42,9 @@ func (o *orm) Order() int {
 }
 
 func initMysqlConn(s *component.Singleton) {
-	logger.Log.Info("init mysql conn")
+	configuration := factory.Get(config.Configuration{})
+	logger := factory.Get(&zap.Logger{})
+	logger.Info("init mysql conn")
 	mysqlCfg := configuration.Db.Mysql
 	g := &gorm.Config{
 		PrepareStmt:                              mysqlCfg.PrepareStmt,
@@ -82,5 +83,5 @@ func initMysqlConn(s *component.Singleton) {
 		conn.SetConnMaxIdleTime(time.Duration(mysqlCfg.MaxIdleTime))
 	}
 	s.Register(reflect.TypeOf(db).Name(), db)
-	logger.Log.Info("init mysql conn success")
+	logger.Info("init mysql conn success")
 }
