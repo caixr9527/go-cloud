@@ -21,6 +21,7 @@ jwt:
     - /order/bind4
 
 discover:
+  enableDiscover: true
   enableConfig: true
   client:
     notLoadCacheAtStart: true
