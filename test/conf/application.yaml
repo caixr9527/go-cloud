@@ -19,3 +19,20 @@ jwt:
   secretKey: go_cloud
   allow:
     - /order/bind4
+
+discover:
+  enableConfig: true
+  client:
+    notLoadCacheAtStart: true
+    username: nacos
+    password: nacos
+#    cacheDir: /tmp/nacos/cache
+#    logDir: /tmp/nacos/log
+  server:
+    - ipAddr: 192.168.110.152
+      port: 8848
+      scheme: http
+      contextPath: /nacos
+  config:
+    dataIds: common.yaml
+    group: DEFAULT_GROUP

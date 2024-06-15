@@ -28,9 +28,11 @@ func (l *logger) Create(s *component.Singleton) {
 func init() {
 	component.RegisterComponent(&logger{})
 }
+func (l *logger) Refresh(s *component.Singleton) {
 
+}
 func (l *logger) Order() int {
-	return math.MinInt + 1
+	return math.MinInt + 2
 }
 
 func initLogger(s *component.Singleton) {

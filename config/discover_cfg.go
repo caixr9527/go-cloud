@@ -47,9 +47,16 @@ type server struct {
 	GrpcPort uint64 `yaml:"grpcPort" mapstructure:"grpcPort"`
 }
 
+type nacosConfig struct {
+	DataIds string `yaml:"dataIds" mapstructure:"dataIds"`
+	Group   string `yaml:"group" mapstructure:"group"`
+	Refresh bool   `yaml:"refresh" mapstructure:"refresh"`
+}
+
 type discoverConfig struct {
-	EnableDiscover bool     `yaml:"enableDiscover"  mapstructure:"enableDiscover"`
-	EnableConfig   bool     `yaml:"enableConfig" mapstructure:"enableConfig"`
-	Client         client   `yaml:"client" mapstructure:"client"`
-	Server         []server `yaml:"server" mapstructure:"server"`
+	EnableDiscover bool        `yaml:"enableDiscover"  mapstructure:"enableDiscover"`
+	EnableConfig   bool        `yaml:"enableConfig" mapstructure:"enableConfig"`
+	Client         client      `yaml:"client" mapstructure:"client"`
+	Server         []server    `yaml:"server" mapstructure:"server"`
+	Config         nacosConfig `yaml:"config" mapstructure:"config"`
 }

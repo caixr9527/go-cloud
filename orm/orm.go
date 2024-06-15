@@ -38,7 +38,11 @@ func init() {
 }
 
 func (o *orm) Order() int {
-	return math.MinInt + 2
+	return math.MinInt + 4
+}
+
+func (o *orm) Refresh(s *component.Singleton) {
+
 }
 
 func initMysqlConn(s *component.Singleton) {

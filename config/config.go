@@ -2,11 +2,16 @@ package config
 
 import (
 	"github.com/caixr9527/go-cloud/component"
+	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/fsnotify/fsnotify"
+	"github.com/nacos-group/nacos-sdk-go/v2/clients/config_client"
+	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
 	"log"
 	"math"
 	"reflect"
+	"strings"
 	"sync"
 )
 
@@ -29,13 +34,13 @@ type config struct {
 	Template  template       `yaml:"template" mapstructure:"template"`
 	Db        dbConfig       `yaml:"db" mapstructure:"db"`
 	Redis     redisConfig    `yaml:"redis" mapstructure:"redis"`
-	Discover  discoverConfig `yaml:"discoverConfig" mapstructure:"discoverConfig"`
+	Discover  discoverConfig `yaml:"discover" mapstructure:"discover"`
 }
 
-type conf struct {
-}
+//type Configuration struct {
+//}
 
-func (c *conf) Create(s *component.Singleton) {
+func (c *Configuration) Create(s *component.Singleton) {
 	once.Do(func() {
 		var cfg Configuration
 		viper.SetConfigFile("conf/application.yaml")
@@ -59,10 +64,37 @@ func (c *conf) Create(s *component.Singleton) {
 	})
 }
 
-func init() {
-	component.RegisterComponent(&conf{})
+func (c *Configuration) Refresh(s *component.Singleton) {
+	configClient := factory.Get(&config_client.ConfigClient{})
+	configuration := factory.Get(Configuration{})
+	dataIds := strings.Split(configuration.Discover.Config.DataIds, ",")
+	group := configuration.Discover.Config.Group
+	var contents strings.Builder
+	for index := range dataIds {
+		dataId := dataIds[index]
+		content, err := configClient.GetConfig(vo.ConfigParam{
+			DataId: dataId,
+			Group:  group,
+		})
+		if err != nil {
+			log.Println(err)
+		} else {
+			contents.WriteString(content)
+		}
+	}
+
+	err := yaml.Unmarshal([]byte(contents.String()), &configuration)
+	if err != nil {
+		log.Println(err)
+	}
+	s.Register(reflect.TypeOf(configuration).String(), configuration)
+
 }
 
-func (c *conf) Order() int {
+func init() {
+	component.RegisterComponent(&Configuration{})
+}
+
+func (c *Configuration) Order() int {
 	return math.MinInt
 }

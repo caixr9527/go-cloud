@@ -6,6 +6,7 @@ import (
 	"github.com/caixr9527/go-cloud/component"
 	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/caixr9527/go-cloud/config"
+	_ "github.com/caixr9527/go-cloud/discover"
 	"github.com/caixr9527/go-cloud/internal/middleware"
 	_ "github.com/caixr9527/go-cloud/log"
 	"github.com/caixr9527/go-cloud/web"

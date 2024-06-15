@@ -12,5 +12,9 @@ func Get[T any](t T) T {
 	if kind == reflect.Pointer {
 		name = typeOf.Elem().String()
 	}
-	return component.SinglePool.Get(name).(T)
+	val, ok := component.SinglePool.Get(name)
+	if !ok {
+		return t
+	}
+	return val.(T)
 }
