@@ -92,14 +92,14 @@ func (e *Engine) Context() *web.Context {
 }
 
 func (e *Engine) Run() {
-	configuration := factory.Get(config.Configuration{})
+	configuration := factory.Get(&config.Configuration{})
 	if configuration.Server.Https.Enable {
 		e.runTLS(configuration)
 	} else {
 		e.run(configuration)
 	}
 }
-func (e *Engine) run(configuration config.Configuration) {
+func (e *Engine) run(configuration *config.Configuration) {
 	addr := fmt.Sprintf("%s%d", ":", configuration.Server.Port)
 	e.trie.Initialization()
 	srv := &http.Server{
@@ -117,11 +117,14 @@ func (e *Engine) run(configuration config.Configuration) {
 func initialization() {
 	sort.Sort(component.Sort(component.Components))
 	for index := range component.Components {
-		component.Components[index].Create(component.SinglePool)
+		component.Components[index].Create()
+	}
+	for index := range component.Components {
+		component.Components[index].Refresh()
 	}
 }
 
-func (e *Engine) runTLS(configuration config.Configuration) {
+func (e *Engine) runTLS(configuration *config.Configuration) {
 	logger := factory.Get(&zap.Logger{})
 	addr := fmt.Sprintf("%s%d", ":", configuration.Server.Port)
 	certFile := configuration.Server.Https.CertPath
@@ -136,7 +139,7 @@ func (e *Engine) runTLS(configuration config.Configuration) {
 	}
 }
 
-func printLog(configuration config.Configuration, addr string) {
+func printLog(configuration *config.Configuration, addr string) {
 	fmt.Println("   _____  ____     _____ _      ____  _    _ _____  ")
 	fmt.Println("  / ____|/ __ \\   / ____| |    / __ \\| |  | |  __ \\ ")
 	fmt.Println(" | |  __| |  | | | |    | |   | |  | | |  | | |  | |")
@@ -153,7 +156,7 @@ func printLog(configuration config.Configuration, addr string) {
 }
 
 func (e *Engine) LoadTemplate(ops ...web.TemplateOps) {
-	configuration := factory.Get(config.Configuration{})
+	configuration := factory.Get(&config.Configuration{})
 	var funcMap template.FuncMap
 	var pattern = configuration.Template.Path
 	if len(ops) == 0 {

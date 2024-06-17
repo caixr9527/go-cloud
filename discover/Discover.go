@@ -2,50 +2,62 @@ package discover
 
 import (
 	"fmt"
+	"github.com/caixr9527/go-cloud/common/utils"
 	"github.com/caixr9527/go-cloud/common/utils/stringUtils"
 	"github.com/caixr9527/go-cloud/component"
 	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/caixr9527/go-cloud/config"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients"
+	"github.com/nacos-group/nacos-sdk-go/v2/clients/config_client"
+	"github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
+	"log"
 	"math"
-	"reflect"
 	"sync"
 )
 
 var once sync.Once
 
 func init() {
-	component.RegisterComponent(&discover{})
+	component.RegisterComponent(&Discover{})
 }
 
-type discover struct {
+type Discover struct {
+	NamingClient naming_client.INamingClient
+	ConfigClient config_client.IConfigClient
 }
 
-func (d *discover) Refresh(s *component.Singleton) {
+func (d *Discover) Refresh() {
 
 }
 
-func (d *discover) Order() int {
+func (d *Discover) Destroy() {
+
+}
+
+func (d *Discover) Order() int {
 	return math.MinInt + 1
 }
 
-func (d *discover) Create(s *component.Singleton) {
-	configuration := factory.Get(config.Configuration{})
+func (d *Discover) Name() string {
+	return utils.ObjName(d)
+}
+
+func (d *Discover) Create() {
+	configuration := factory.Get(&config.Configuration{})
 	if !configuration.Discover.EnableDiscover && !configuration.Discover.EnableConfig {
 		return
 	}
 	once.Do(func() {
-		//logger := factory.Get(&zap.Logger{})
-		//logger.Info("connect nacos")
-		d.createClient(s)
-		//logger.Info("connect nacos success")
+		log.Println("connect nacos")
+		d.createClient()
+		log.Println("connect nacos success")
 	})
 }
 
-func (d *discover) createClient(s *component.Singleton) {
-	configuration := factory.Get(config.Configuration{})
+func (d *Discover) createClient() {
+	configuration := factory.Get(&config.Configuration{})
 	clientConfig := d.clientConf(configuration)
 	serverConfigs := d.serverConfig(configuration)
 	if configuration.Discover.EnableDiscover {
@@ -59,7 +71,7 @@ func (d *discover) createClient(s *component.Singleton) {
 			fmt.Println(err)
 			return
 		}
-		s.Register(reflect.TypeOf(namingClient).String(), namingClient)
+		d.NamingClient = namingClient
 	}
 
 	if configuration.Discover.EnableConfig {
@@ -73,14 +85,14 @@ func (d *discover) createClient(s *component.Singleton) {
 			fmt.Println(err)
 			return
 		}
-		typeOf := reflect.TypeOf(configClient)
-		s.Register(typeOf.Elem().String(), configClient)
-		configuration.Refresh(s)
+
+		d.ConfigClient = configClient
+		factory.Create(d)
 	}
 
 }
 
-func (d *discover) clientConf(configuration config.Configuration) constant.ClientConfig {
+func (d *Discover) clientConf(configuration *config.Configuration) constant.ClientConfig {
 	cf := configuration.Discover.Client
 	clientConfig := constant.ClientConfig{}
 	if cf.TimeoutMs != 0 {
@@ -125,7 +137,7 @@ func (d *discover) clientConf(configuration config.Configuration) constant.Clien
 	return clientConfig
 }
 
-func (d *discover) serverConfig(configuration config.Configuration) []constant.ServerConfig {
+func (d *Discover) serverConfig(configuration *config.Configuration) []constant.ServerConfig {
 	s := configuration.Discover.Server
 	var serverConfigs []constant.ServerConfig
 	for index := range s {

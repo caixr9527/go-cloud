@@ -1,17 +1,14 @@
 package config
 
 import (
+	"github.com/caixr9527/go-cloud/common/utils"
 	"github.com/caixr9527/go-cloud/component"
 	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/fsnotify/fsnotify"
-	"github.com/nacos-group/nacos-sdk-go/v2/clients/config_client"
-	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 	"github.com/spf13/viper"
-	"gopkg.in/yaml.v3"
+	"go.uber.org/zap"
 	"log"
 	"math"
-	"reflect"
-	"strings"
 	"sync"
 )
 
@@ -37,17 +34,17 @@ type config struct {
 	Discover  discoverConfig `yaml:"discover" mapstructure:"discover"`
 }
 
-//type Configuration struct {
-//}
-
-func (c *Configuration) Create(s *component.Singleton) {
+func (c *Configuration) Name() string {
+	return utils.ObjName(c)
+}
+func (c *Configuration) Create() {
 	once.Do(func() {
-		var cfg Configuration
+		//var cfg Configuration
 		viper.SetConfigFile("conf/application.yaml")
 		viper.WatchConfig()
 		viper.OnConfigChange(func(in fsnotify.Event) {
 			log.Println("reload config")
-			err := viper.Unmarshal(&cfg)
+			err := viper.Unmarshal(&c)
 			if err != nil {
 				log.Println(err)
 			}
@@ -56,38 +53,44 @@ func (c *Configuration) Create(s *component.Singleton) {
 		if err != nil {
 			log.Println(err)
 		}
-		err = viper.Unmarshal(&cfg)
+		err = viper.Unmarshal(&c)
 		if err != nil {
 			log.Println(err)
 		}
-		s.Register(reflect.TypeOf(cfg).String(), cfg)
+		factory.Create(c)
 	})
 }
 
-func (c *Configuration) Refresh(s *component.Singleton) {
-	configClient := factory.Get(&config_client.ConfigClient{})
-	configuration := factory.Get(Configuration{})
-	dataIds := strings.Split(configuration.Discover.Config.DataIds, ",")
-	group := configuration.Discover.Config.Group
-	var contents strings.Builder
-	for index := range dataIds {
-		dataId := dataIds[index]
-		content, err := configClient.GetConfig(vo.ConfigParam{
-			DataId: dataId,
-			Group:  group,
-		})
-		if err != nil {
-			log.Println(err)
-		} else {
-			contents.WriteString(content)
-		}
-	}
+func (c *Configuration) Destroy() {
+	factory.Del(c)
+	factory.Get(&zap.Logger{}).Info("Configuration destroy success")
+}
 
-	err := yaml.Unmarshal([]byte(contents.String()), &configuration)
-	if err != nil {
-		log.Println(err)
-	}
-	s.Register(reflect.TypeOf(configuration).String(), configuration)
+func (c *Configuration) Refresh() {
+	// todo
+	//configClient := factory.GetField("discover.Discover", &config_client.ConfigClient{})
+	//configuration := factory.Get(&Configuration{})
+	//dataIds := strings.Split(configuration.Discover.Config.DataIds, ",")
+	//group := configuration.Discover.Config.Group
+	//var contents strings.Builder
+	//for index := range dataIds {
+	//	dataId := dataIds[index]
+	//	content, err := configClient.GetConfig(vo.ConfigParam{
+	//		DataId: dataId,
+	//		Group:  group,
+	//	})
+	//	if err != nil {
+	//		log.Println(err)
+	//	} else {
+	//		contents.WriteString(content)
+	//	}
+	//}
+	//
+	//err := yaml.Unmarshal([]byte(contents.String()), &configuration)
+	//if err != nil {
+	//	log.Println(err)
+	//}
+	//factory.Create(configuration)
 
 }
 

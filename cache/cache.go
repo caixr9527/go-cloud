@@ -2,55 +2,59 @@ package cache
 
 import (
 	"context"
+	"github.com/caixr9527/go-cloud/common/utils"
 	"github.com/caixr9527/go-cloud/component"
 	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/caixr9527/go-cloud/config"
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 	"math"
-	"reflect"
 	"sync"
 	"time"
 )
 
 var once sync.Once
 
-type cache struct {
+type Cache struct {
+	Redis *Redis
 }
 
 func init() {
-	component.RegisterComponent(&cache{})
+	component.RegisterComponent(&Cache{})
 }
 
-func (c *cache) Order() int {
+func (c *Cache) Order() int {
 	return math.MinInt + 3
 }
 
-func (c *cache) Refresh(s *component.Singleton) {
-	configuration := factory.Get(config.Configuration{})
-	if !configuration.Redis.Enable {
-		return
-	}
-	logger := factory.Get(&zap.Logger{})
-	logger.Info("refresh redis conn")
-	c.new(configuration, s)
-	logger.Info("refresh redis conn success")
+func (c *Cache) Destroy() {
+	cache := factory.Get(c)
+	cache.Redis.Client.Close()
+	factory.Del(c)
+	factory.Get(&zap.Logger{}).Info("redis destroy success")
+}
+func (c *Cache) Refresh() {
+
 }
 
-func (c *cache) Create(s *component.Singleton) {
-	configuration := factory.Get(config.Configuration{})
+func (c *Cache) Name() string {
+	return utils.ObjName(c)
+}
+
+func (c *Cache) Create() {
+	configuration := factory.Get(&config.Configuration{})
 	if !configuration.Redis.Enable {
 		return
 	}
 	logger := factory.Get(&zap.Logger{})
 	once.Do(func() {
 		logger.Info("create redis conn")
-		c.new(configuration, s)
+		c.new(configuration)
 		logger.Info("create redis conn success")
 	})
 }
 
-func (c *cache) new(configuration config.Configuration, s *component.Singleton) {
+func (c *Cache) new(configuration *config.Configuration) {
 	client := redis.NewClient(&redis.Options{
 		Network:               configuration.Redis.Network,
 		Addr:                  configuration.Redis.Addr,
@@ -81,5 +85,7 @@ func (c *cache) new(configuration config.Configuration, s *component.Singleton) 
 		Client:  client,
 		Context: context.Background(),
 	}
-	s.Register(reflect.TypeOf(redisClient).String(), redisClient)
+	c.Redis = redisClient
+	//s.Register(reflect.TypeOf(c).String(), c)
+	factory.Create(c)
 }

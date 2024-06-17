@@ -10,7 +10,7 @@ import (
 // YWRtaW46Z29fY2xvdWQ=
 
 func BasicAuth(context *web.Context) {
-	configuration := factory.Get(config.Configuration{})
+	configuration := factory.Get(&config.Configuration{})
 	username, password, ok := context.R.BasicAuth()
 	if !ok {
 		unAuth(context, "basic auth require")
@@ -25,7 +25,7 @@ func BasicAuth(context *web.Context) {
 }
 
 func unAuth(context *web.Context, msg string) {
-	configuration := factory.Get(config.Configuration{})
+	configuration := factory.Get(&config.Configuration{})
 	context.W.Header().Set("WWW-Authenticate", configuration.BasicAuth.Realm)
 	context.Fail(http.StatusUnauthorized, msg)
 	context.Abort()

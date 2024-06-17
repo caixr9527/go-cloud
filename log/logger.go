@@ -1,6 +1,7 @@
 package log
 
 import (
+	"github.com/caixr9527/go-cloud/common/utils"
 	"github.com/caixr9527/go-cloud/component"
 	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/caixr9527/go-cloud/config"
@@ -9,7 +10,6 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 	"math"
 	"os"
-	"reflect"
 	"sync"
 )
 
@@ -19,24 +19,32 @@ var once sync.Once
 type logger struct {
 }
 
-func (l *logger) Create(s *component.Singleton) {
+func (l *logger) Create() {
 	once.Do(func() {
-		initLogger(s)
+		initLogger()
 	})
 }
 
 func init() {
 	component.RegisterComponent(&logger{})
 }
-func (l *logger) Refresh(s *component.Singleton) {
+func (l *logger) Refresh() {
 
 }
 func (l *logger) Order() int {
 	return math.MinInt + 2
 }
 
-func initLogger(s *component.Singleton) {
-	configuration := factory.Get(config.Configuration{})
+func (l *logger) Destroy() {
+
+}
+
+func (l *logger) Name() string {
+	return utils.ObjName(&zap.Logger{})
+}
+
+func initLogger() {
+	configuration := factory.Get(&config.Configuration{})
 	loggerLevel := configuration.Logger.Level
 	if loggerLevel == "" {
 		loggerLevel = "debug"
@@ -111,6 +119,5 @@ func initLogger(s *component.Singleton) {
 	} else {
 		Log = zap.New(core, caller)
 	}
-	typeOf := reflect.TypeOf(Log)
-	s.Register(typeOf.Elem().String(), Log)
+	factory.Create(Log)
 }

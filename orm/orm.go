@@ -1,6 +1,7 @@
 package orm
 
 import (
+	"github.com/caixr9527/go-cloud/common/utils"
 	"github.com/caixr9527/go-cloud/component"
 	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/caixr9527/go-cloud/config"
@@ -8,18 +9,18 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"math"
-	"reflect"
 	"sync"
 	"time"
 )
 
 var once sync.Once
 
-type orm struct {
+type Orm struct {
+	Db *gorm.DB
 }
 
-func (o *orm) Create(s *component.Singleton) {
-	configuration := factory.Get(config.Configuration{})
+func (o *Orm) Create() {
+	configuration := factory.Get(&config.Configuration{})
 	if !configuration.Db.Enable {
 		return
 	}
@@ -28,25 +29,33 @@ func (o *orm) Create(s *component.Singleton) {
 		switch t {
 		case "mysql":
 		case "MYSQL":
-			initMysqlConn(s)
+			o.initMysqlConn()
 		}
 	})
 }
 
 func init() {
-	component.RegisterComponent(&orm{})
+	component.RegisterComponent(&Orm{})
 }
 
-func (o *orm) Order() int {
+func (o *Orm) Order() int {
 	return math.MinInt + 4
 }
 
-func (o *orm) Refresh(s *component.Singleton) {
+func (o *Orm) Name() string {
+	return utils.ObjName(o)
+}
+
+func (o *Orm) Refresh() {
 
 }
 
-func initMysqlConn(s *component.Singleton) {
-	configuration := factory.Get(config.Configuration{})
+func (o *Orm) Destroy() {
+
+}
+
+func (o *Orm) initMysqlConn() {
+	configuration := factory.Get(&config.Configuration{})
 	logger := factory.Get(&zap.Logger{})
 	logger.Info("init mysql conn")
 	mysqlCfg := configuration.Db.Mysql
@@ -86,6 +95,8 @@ func initMysqlConn(s *component.Singleton) {
 	if mysqlCfg.MaxIdleTime != 0 {
 		conn.SetConnMaxIdleTime(time.Duration(mysqlCfg.MaxIdleTime))
 	}
-	s.Register(reflect.TypeOf(db).String(), db)
+	//s.Register(reflect.TypeOf(db).String(), db)
+	o.Db = db
+	factory.Create(o)
 	logger.Info("init mysql conn success")
 }

@@ -14,15 +14,23 @@ func (s *Singleton) Register(key string, obj any) {
 	}
 }
 
+func (s *Singleton) Del(key string) {
+	if key != "" {
+		delete(s.cPool, key)
+	}
+}
+
 func (s *Singleton) Get(key string) (any, bool) {
 	value, ok := s.cPool[key]
 	return value, ok
 }
 
 type component interface {
-	Create(s *Singleton)
+	Create()
 	Order() int
-	Refresh(s *Singleton)
+	Refresh()
+	Destroy()
+	Name() string
 }
 
 var Components = make([]component, 0)
