@@ -33,6 +33,10 @@ type Discover struct {
 
 func (d *Discover) Refresh() {
 	configuration := factory.Get(&config.Configuration{})
+	l := factory.Get(&logger.Log{})
+	if !configuration.Discover.EnableConfig {
+		return
+	}
 	dataIds := strings.Split(configuration.Discover.Config.DataIds, ",")
 	group := configuration.Discover.Config.Group
 	var contents strings.Builder
@@ -43,7 +47,7 @@ func (d *Discover) Refresh() {
 			Group:  group,
 		})
 		if err != nil {
-			factory.Get(&logger.Log{}).Error(err.Error())
+			l.Error(err.Error())
 		} else {
 			contents.WriteString(content)
 		}
@@ -51,9 +55,34 @@ func (d *Discover) Refresh() {
 
 	err := yaml.Unmarshal([]byte(contents.String()), &configuration)
 	if err != nil {
-		factory.Get(&logger.Log{}).Error(err.Error())
+		l.Error(err.Error())
 	}
 	factory.Create(configuration)
+
+	if configuration.Discover.Config.Refresh {
+		for index := range dataIds {
+			dataId := dataIds[index]
+			go func() {
+				l.Info(fmt.Sprintf("listening config group: %s, dataId: %s", group, dataId))
+				err := d.IConfigClient.ListenConfig(vo.ConfigParam{
+					DataId: dataId,
+					Group:  group,
+					OnChange: func(namespace, group, dataId, data string) {
+						l.Info(fmt.Sprintf("config change namespace: %s, group: %s, dataId: %s", namespace, group, dataId))
+						err := yaml.Unmarshal([]byte(data), &configuration)
+						if err != nil {
+							l.Error(err.Error())
+						}
+						factory.Create(configuration)
+					},
+				})
+				if err != nil {
+					l.Error(err.Error())
+				}
+			}()
+		}
+	}
+
 }
 
 func (d *Discover) Destroy() {
@@ -117,11 +146,12 @@ func (d *Discover) createClient() {
 			fmt.Println(err)
 			return
 		}
-
 		d.IConfigClient = configClient
-		factory.Create(d)
 	}
-
+	if d.IConfigClient == nil && d.INamingClient == nil {
+		return
+	}
+	factory.Create(d)
 }
 
 func (d *Discover) clientConf(configuration *config.Configuration) constant.ClientConfig {

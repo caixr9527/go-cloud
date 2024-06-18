@@ -35,5 +35,6 @@ discover:
       scheme: http
       contextPath: /nacos
   config:
-    dataIds: common.yaml
+    dataIds: common.yaml,test.yaml
     group: DEFAULT_GROUP
+    refresh: true
