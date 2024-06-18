@@ -4,9 +4,9 @@ import (
 	"errors"
 	"github.com/caixr9527/go-cloud/common/utils/stringUtils"
 	"github.com/caixr9527/go-cloud/component/factory"
+	logger "github.com/caixr9527/go-cloud/log"
 	"github.com/caixr9527/go-cloud/web/binding"
 	"github.com/caixr9527/go-cloud/web/render"
-	"go.uber.org/zap"
 	"html/template"
 	"io"
 	"log"
@@ -105,8 +105,7 @@ func (c *Context) PostForm(key string) (any, error) {
 func (c *Context) parseMultipartForm() {
 	if err := c.R.ParseMultipartForm(defaultMaxMemory); err != nil {
 		if !errors.Is(err, http.ErrNotMultipart) {
-			logger := factory.Get(&zap.Logger{})
-			logger.Error(err.Error())
+			factory.Get(&logger.Log{}).Error(err.Error())
 		}
 	}
 }

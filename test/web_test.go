@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"github.com/caixr9527/go-cloud"
 	"github.com/caixr9527/go-cloud/auth"
-	_ "github.com/caixr9527/go-cloud/cache"
 	"github.com/caixr9527/go-cloud/common"
 	"github.com/caixr9527/go-cloud/component/factory"
+	logger "github.com/caixr9527/go-cloud/log"
 	"github.com/caixr9527/go-cloud/web"
-	"go.uber.org/zap"
 	"log"
 	"net/http"
 	"testing"
@@ -196,34 +195,34 @@ func TestRun(t *testing.T) {
 		//user := &User{}
 		users := make([]User, 0)
 		//var str string
-		logger := factory.Get(&zap.Logger{})
+		l := factory.Get(&logger.Log{})
 		err := context.Bind(&users)
 		if err != nil {
-			logger.Error(err.Error())
+			l.Error(err.Error())
 			context.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
-		logger.Debug("Debug")
-		logger.Info("Info")
-		logger.Warn("Warn")
-		logger.Error("Error")
+		l.Debug("Debug")
+		l.Info("Info")
+		l.Warn("Warn")
+		l.Error("Error")
 		context.JSON(http.StatusOK, users)
 	})
 	orderGroup.POST("/bind5", func(context *web.Context) {
 		//user := &User{}
 		users := make([]User, 0)
 		//var str string
-		logger := factory.Get(&zap.Logger{})
+		l := factory.Get(&logger.Log{})
 		err := context.Bind(&users)
 		if err != nil {
-			logger.Error(err.Error())
+			l.Error(err.Error())
 			context.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
-		logger.Debug("Debug")
-		logger.Info("Info")
-		logger.Warn("Warn")
-		logger.Error("Error")
+		l.Debug("Debug")
+		l.Info("Info")
+		l.Warn("Warn")
+		l.Error("Error")
 		context.JSON(http.StatusOK, users)
 	})
 	config := &auth.JwtToken{

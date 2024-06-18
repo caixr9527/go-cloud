@@ -7,13 +7,16 @@ import (
 	"github.com/caixr9527/go-cloud/component"
 	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/caixr9527/go-cloud/config"
+	logger "github.com/caixr9527/go-cloud/log"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/config_client"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
+	"gopkg.in/yaml.v3"
 	"log"
 	"math"
+	"strings"
 	"sync"
 )
 
@@ -24,16 +27,45 @@ func init() {
 }
 
 type Discover struct {
-	NamingClient naming_client.INamingClient
-	ConfigClient config_client.IConfigClient
+	naming_client.INamingClient
+	config_client.IConfigClient
 }
 
 func (d *Discover) Refresh() {
+	configuration := factory.Get(&config.Configuration{})
+	dataIds := strings.Split(configuration.Discover.Config.DataIds, ",")
+	group := configuration.Discover.Config.Group
+	var contents strings.Builder
+	for index := range dataIds {
+		dataId := dataIds[index]
+		content, err := d.GetConfig(vo.ConfigParam{
+			DataId: dataId,
+			Group:  group,
+		})
+		if err != nil {
+			factory.Get(&logger.Log{}).Error(err.Error())
+		} else {
+			contents.WriteString(content)
+		}
+	}
 
+	err := yaml.Unmarshal([]byte(contents.String()), &configuration)
+	if err != nil {
+		factory.Get(&logger.Log{}).Error(err.Error())
+	}
+	factory.Create(configuration)
 }
 
 func (d *Discover) Destroy() {
-
+	l := factory.Get(&logger.Log{})
+	if d.IConfigClient != nil {
+		d.IConfigClient.CloseClient()
+		l.Info("destory nacos config client")
+	}
+	if d.INamingClient != nil {
+		d.INamingClient.CloseClient()
+		l.Info("destory nacos naming client")
+	}
 }
 
 func (d *Discover) Order() int {
@@ -71,7 +103,7 @@ func (d *Discover) createClient() {
 			fmt.Println(err)
 			return
 		}
-		d.NamingClient = namingClient
+		d.INamingClient = namingClient
 	}
 
 	if configuration.Discover.EnableConfig {
@@ -86,7 +118,7 @@ func (d *Discover) createClient() {
 			return
 		}
 
-		d.ConfigClient = configClient
+		d.IConfigClient = configClient
 		factory.Create(d)
 	}
 

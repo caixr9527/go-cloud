@@ -6,8 +6,8 @@ import (
 	"github.com/caixr9527/go-cloud/component"
 	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/caixr9527/go-cloud/config"
+	"github.com/caixr9527/go-cloud/log"
 	"github.com/redis/go-redis/v9"
-	"go.uber.org/zap"
 	"math"
 	"sync"
 	"time"
@@ -31,7 +31,7 @@ func (c *Cache) Destroy() {
 	cache := factory.Get(c)
 	cache.Redis.Client.Close()
 	factory.Del(c)
-	factory.Get(&zap.Logger{}).Info("redis destroy success")
+	factory.Get(&log.Log{}).Info("redis destroy success")
 }
 func (c *Cache) Refresh() {
 
@@ -46,7 +46,7 @@ func (c *Cache) Create() {
 	if !configuration.Redis.Enable {
 		return
 	}
-	logger := factory.Get(&zap.Logger{})
+	logger := factory.Get(&log.Log{})
 	once.Do(func() {
 		logger.Info("create redis conn")
 		c.new(configuration)

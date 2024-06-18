@@ -5,7 +5,6 @@ import (
 	"github.com/caixr9527/go-cloud/component"
 	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/caixr9527/go-cloud/config"
-	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"math"
@@ -56,7 +55,7 @@ func (o *Orm) Destroy() {
 
 func (o *Orm) initMysqlConn() {
 	configuration := factory.Get(&config.Configuration{})
-	logger := factory.Get(&zap.Logger{})
+	logger := factory.Get(&log.Log{})
 	logger.Info("init mysql conn")
 	mysqlCfg := configuration.Db.Mysql
 	g := &gorm.Config{

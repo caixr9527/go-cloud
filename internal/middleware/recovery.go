@@ -3,8 +3,8 @@ package middleware
 import (
 	"fmt"
 	"github.com/caixr9527/go-cloud/component/factory"
+	"github.com/caixr9527/go-cloud/log"
 	"github.com/caixr9527/go-cloud/web"
-	"go.uber.org/zap"
 	"net/http"
 	"runtime"
 	"strings"
@@ -12,7 +12,7 @@ import (
 
 func Recovery(context *web.Context) {
 	defer func() {
-		logger := factory.Get(&zap.Logger{})
+		logger := factory.Get(&log.Log{})
 		if err := recover(); err != nil {
 			logger.Error(detailMsg(err))
 			context.Fail(http.StatusInternalServerError, "Internal Server Error")

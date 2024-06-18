@@ -13,37 +13,37 @@ import (
 	"sync"
 )
 
-// var Log *zap.Logger
 var once sync.Once
 
-type logger struct {
+type Log struct {
+	*zap.Logger
 }
 
-func (l *logger) Create() {
+func (l *Log) Create() {
 	once.Do(func() {
-		initLogger()
+		l.initLogger()
 	})
 }
 
 func init() {
-	component.RegisterComponent(&logger{})
+	component.RegisterComponent(&Log{})
 }
-func (l *logger) Refresh() {
+func (l *Log) Refresh() {
 
 }
-func (l *logger) Order() int {
+func (l *Log) Order() int {
 	return math.MinInt + 2
 }
 
-func (l *logger) Destroy() {
+func (l *Log) Destroy() {
 
 }
 
-func (l *logger) Name() string {
-	return utils.ObjName(&zap.Logger{})
+func (l *Log) Name() string {
+	return utils.ObjName(l)
 }
 
-func initLogger() {
+func (l *Log) initLogger() {
 	configuration := factory.Get(&config.Configuration{})
 	loggerLevel := configuration.Logger.Level
 	if loggerLevel == "" {
@@ -76,7 +76,7 @@ func initLogger() {
 		MessageKey:       "msg",
 		LevelKey:         "level",
 		TimeKey:          "time",
-		NameKey:          "logger",
+		NameKey:          "Log",
 		CallerKey:        "file",
 		StacktraceKey:    "stacktrace",
 		LineEnding:       zapcore.DefaultLineEnding,
@@ -110,14 +110,14 @@ func initLogger() {
 	// 开启开发模式，堆栈跟踪
 	caller := zap.AddCaller()
 	active := configuration.Cloud.Active
-	var Log *zap.Logger
+	//var Log *zap.Logger
 	if active == config.DEV {
 		// 开启文件及行号
 		development := zap.Development()
 		// 构造日志
-		Log = zap.New(core, caller, development)
+		l.Logger = zap.New(core, caller, development)
 	} else {
-		Log = zap.New(core, caller)
+		l.Logger = zap.New(core, caller)
 	}
-	factory.Create(Log)
+	factory.Create(l)
 }

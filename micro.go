@@ -1,6 +1,7 @@
 package cloud
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/caixr9527/go-cloud/component"
@@ -8,14 +9,17 @@ import (
 	"github.com/caixr9527/go-cloud/config"
 	_ "github.com/caixr9527/go-cloud/discover"
 	"github.com/caixr9527/go-cloud/internal/middleware"
-	_ "github.com/caixr9527/go-cloud/log"
+	logger "github.com/caixr9527/go-cloud/log"
 	"github.com/caixr9527/go-cloud/web"
 	"github.com/caixr9527/go-cloud/web/render"
-	"go.uber.org/zap"
 	"html/template"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 	"sort"
+	"syscall"
+	"time"
 )
 
 type Engine struct {
@@ -114,6 +118,21 @@ func (e *Engine) run(configuration *config.Configuration) {
 	}
 }
 
+func (e *Engine) Shutdown(srv *http.Server) {
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM) // 此处不会阻塞
+	<-quit                                               // 阻塞在此，当接收到上述两种信号时才会往下执行
+	l := factory.Get(&logger.Log{})
+	l.Info("Shutting down server ...")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		l.Error("Insecure Server forced to shutdown: " + err.Error())
+	}
+	l.Info("Server exiting")
+}
+
 func initialization() {
 	sort.Sort(component.Sort(component.Components))
 	for index := range component.Components {
@@ -125,14 +144,14 @@ func initialization() {
 }
 
 func (e *Engine) runTLS(configuration *config.Configuration) {
-	logger := factory.Get(&zap.Logger{})
+	l := factory.Get(&logger.Log{})
 	addr := fmt.Sprintf("%s%d", ":", configuration.Server.Port)
 	certFile := configuration.Server.Https.CertPath
 	keyFile := configuration.Server.Https.KeyPath
 	e.trie.Initialization()
 	printLog(configuration, addr)
-	logger.Info("load cert: " + certFile)
-	logger.Info("load key: " + keyFile)
+	l.Info("load cert: " + certFile)
+	l.Info("load key: " + keyFile)
 	err := http.ListenAndServeTLS(addr, certFile, keyFile, e)
 	if err != nil {
 		log.Fatalf("listen: %s\n", err)
@@ -147,11 +166,11 @@ func printLog(configuration *config.Configuration, addr string) {
 	fmt.Println(" | |__| | |__| | | |____| |___| |__| | |__| | |__| |")
 	fmt.Println("  \\_____|\\____/   \\_____|______\\____/ \\____/|_____/ " + Version)
 	fmt.Println(" ::start on port" + addr)
-	logger := factory.Get(&zap.Logger{})
-	logger.Info("go-cloud start success, start on port" + addr)
-	logger.Info("go-cloud env active: " + configuration.Cloud.Active)
+	l := factory.Get(&logger.Log{})
+	l.Info("go-cloud start success, start on port" + addr)
+	l.Info("go-cloud env active: " + configuration.Cloud.Active)
 	if configuration.Template.Path != "" {
-		logger.Info("go-cloud load template: " + configuration.Template.Path)
+		l.Info("go-cloud load template: " + configuration.Template.Path)
 	}
 }
 
