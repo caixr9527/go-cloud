@@ -1,13 +1,16 @@
 package config
 
 import (
+	"errors"
 	"github.com/caixr9527/go-cloud/common/utils"
 	"github.com/caixr9527/go-cloud/component"
 	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
 	"log"
 	"math"
+	"reflect"
 	"sync"
 )
 
@@ -33,6 +36,23 @@ type config struct {
 	Discover  discoverConfig `yaml:"discover" mapstructure:"discover"`
 }
 
+var configs = make([]any, 0)
+
+func Add(conf ...any) error {
+	if len(conf) == 0 {
+		return errors.New("invalid parameters")
+	}
+	for index := range conf {
+		c := conf[index]
+		typeOf := reflect.TypeOf(c)
+		if typeOf.Kind() != reflect.Pointer {
+			return errors.New(typeOf.String() + " must be pointer")
+		}
+	}
+	configs = append(configs, conf...)
+	return nil
+}
+
 func (c *Configuration) Name() string {
 	return utils.ObjName(c)
 }
@@ -56,7 +76,29 @@ func (c *Configuration) Create() {
 			log.Println(err)
 		}
 		factory.Create(c)
+		c.LoadLocalCustomConfig()
 	})
+}
+
+func (c *Configuration) LoadLocalCustomConfig() {
+	for idx := range configs {
+		conf := configs[idx]
+		err := viper.Unmarshal(conf)
+		if err != nil {
+			log.Println(err)
+		}
+	}
+}
+
+func (c *Configuration) LoadRemoteCustomConfig(data string) {
+	for idx := range configs {
+		conf := configs[idx]
+		err := yaml.Unmarshal([]byte(data), conf)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	}
 }
 
 func (c *Configuration) Destroy() {

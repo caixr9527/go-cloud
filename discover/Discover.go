@@ -56,8 +56,10 @@ func (d *Discover) Refresh() {
 	err := yaml.Unmarshal([]byte(contents.String()), &configuration)
 	if err != nil {
 		l.Error(err.Error())
+		return
 	}
 	factory.Create(configuration)
+	configuration.LoadRemoteCustomConfig(contents.String())
 
 	if configuration.Discover.Config.Refresh {
 		for index := range dataIds {
@@ -72,8 +74,10 @@ func (d *Discover) Refresh() {
 						err := yaml.Unmarshal([]byte(data), &configuration)
 						if err != nil {
 							l.Error(err.Error())
+							return
 						}
 						factory.Create(configuration)
+						configuration.LoadRemoteCustomConfig(contents.String())
 					},
 				})
 				if err != nil {
