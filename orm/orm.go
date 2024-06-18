@@ -5,6 +5,7 @@ import (
 	"github.com/caixr9527/go-cloud/component"
 	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/caixr9527/go-cloud/config"
+	"github.com/caixr9527/go-cloud/log"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"math"
@@ -94,7 +95,6 @@ func (o *Orm) initMysqlConn() {
 	if mysqlCfg.MaxIdleTime != 0 {
 		conn.SetConnMaxIdleTime(time.Duration(mysqlCfg.MaxIdleTime))
 	}
-	//s.Register(reflect.TypeOf(db).String(), db)
 	o.Db = db
 	factory.Create(o)
 	logger.Info("init mysql conn success")

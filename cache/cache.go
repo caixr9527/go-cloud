@@ -86,6 +86,5 @@ func (c *Cache) new(configuration *config.Configuration) {
 		Context: context.Background(),
 	}
 	c.Redis = redisClient
-	//s.Register(reflect.TypeOf(c).String(), c)
 	factory.Create(c)
 }
