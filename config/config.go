@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"github.com/caixr9527/go-cloud/common/utils"
 	"github.com/caixr9527/go-cloud/component"
 	"github.com/caixr9527/go-cloud/component/factory"
@@ -98,6 +99,7 @@ func (c *Configuration) LoadRemoteCustomConfig(data string) {
 			log.Println(err)
 			return
 		}
+		log.Println(fmt.Sprintf("refresh config: %v success", conf))
 	}
 }
 

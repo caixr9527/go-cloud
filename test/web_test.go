@@ -6,6 +6,7 @@ import (
 	"github.com/caixr9527/go-cloud/auth"
 	"github.com/caixr9527/go-cloud/common"
 	"github.com/caixr9527/go-cloud/component/factory"
+	"github.com/caixr9527/go-cloud/config"
 	logger "github.com/caixr9527/go-cloud/log"
 	"github.com/caixr9527/go-cloud/web"
 	"log"
@@ -20,8 +21,28 @@ type User struct {
 	Addresses []string `xml:"addresses" json:"addresses"`
 }
 
-func TestRun(t *testing.T) {
+type Media struct {
+	Ip   string `yaml:"ip" mapstructure:"ip"`
+	Port int    `yaml:"port" mapstructure:"port"`
+}
 
+type Media2 struct {
+	DeviceId string `yaml:"deviceId" mapstructure:"deviceId"`
+	Port     int    `yaml:"port" mapstructure:"port"`
+}
+
+type C struct {
+	M  Media  `yaml:"rtsp" mapstructure:"rtsp"`
+	MM Media2 `yaml:"rtmp" mapstructure:"rtmp"`
+}
+
+func TestRun(t *testing.T) {
+	c := &C{}
+	c2 := &C{}
+	err := config.Add(c, c2)
+	if err != nil {
+		fmt.Println(err)
+	}
 	options := &web.Options{}
 	engine := cloud.New(options)
 	//engine := cloud.Default()
@@ -223,7 +244,7 @@ func TestRun(t *testing.T) {
 		l.Info("Info")
 		l.Warn("Warn")
 		l.Error("Error")
-		context.JSON(http.StatusOK, users)
+		context.JSON(http.StatusOK, users, c, c2)
 	})
 	config := &auth.JwtToken{
 		Alg:          "HS256",

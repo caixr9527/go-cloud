@@ -7,7 +7,7 @@ server:
 
 logger:
 #  fileName: app.log
-  level: debug
+  level: info
 
 cloud:
   active: dev
@@ -38,3 +38,12 @@ discover:
     dataIds: common.yaml,test.yaml
     group: DEFAULT_GROUP
     refresh: true
+
+
+rtsp:
+  ip: 1.1.1.1
+  port: 2345
+
+rtmp:
+  deviceId: deviceId
+  port: 12345

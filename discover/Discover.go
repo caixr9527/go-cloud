@@ -50,6 +50,8 @@ func (d *Discover) Refresh() {
 			l.Error(err.Error())
 		} else {
 			contents.WriteString(content)
+			contents.WriteString("\n")
+			contents.WriteString("---")
 		}
 	}
 
@@ -77,7 +79,7 @@ func (d *Discover) Refresh() {
 							return
 						}
 						factory.Create(configuration)
-						configuration.LoadRemoteCustomConfig(contents.String())
+						configuration.LoadRemoteCustomConfig(data)
 					},
 				})
 				if err != nil {

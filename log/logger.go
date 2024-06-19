@@ -29,7 +29,7 @@ func init() {
 	component.RegisterComponent(&Log{})
 }
 func (l *Log) Refresh() {
-
+	l.initLogger()
 }
 func (l *Log) Order() int {
 	return math.MinInt + 2
