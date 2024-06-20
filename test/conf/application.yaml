@@ -7,7 +7,7 @@ server:
 
 logger:
 #  fileName: app.log
-  level: info
+  level: debug
 
 cloud:
   active: dev
@@ -19,6 +19,7 @@ jwt:
   secretKey: go_cloud
   allow:
     - /order/bind4
+    - /order/**
 
 discover:
   enableDiscover: true
