@@ -48,20 +48,22 @@ func (d *Discover) Refresh() {
 		})
 		if err != nil {
 			l.Error(err.Error())
-		} else {
+		} else if content != "" {
 			contents.WriteString(content)
 			contents.WriteString("\n")
 			contents.WriteString("---")
 		}
 	}
-
-	err := yaml.Unmarshal([]byte(contents.String()), &configuration)
-	if err != nil {
-		l.Error(err.Error())
-		return
+	newContents := contents.String()
+	if newContents != "" {
+		err := yaml.Unmarshal([]byte(newContents), &configuration)
+		if err != nil {
+			l.Error(err.Error())
+			return
+		}
+		factory.Create(configuration)
+		configuration.LoadRemoteCustomConfig(newContents)
 	}
-	factory.Create(configuration)
-	configuration.LoadRemoteCustomConfig(contents.String())
 
 	if configuration.Discover.Config.Refresh {
 		for index := range dataIds {
