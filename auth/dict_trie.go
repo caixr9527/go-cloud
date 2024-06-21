@@ -1,33 +1,43 @@
 package auth
 
+import (
+	"strings"
+	"sync"
+)
+
+var once sync.Once
+
 type dictTrie struct {
 	name     string
 	children []*dictTrie
 	end      bool
 }
 
-type DictTrie struct {
-	root        *dictTrie
-	initialized bool
+type Tree struct {
+	root *dictTrie
 }
 
-var Allow = New()
-
-func New() *DictTrie {
-	return &DictTrie{root: &dictTrie{name: "", children: make([]*dictTrie, 0)}}
+func New() *Tree {
+	return &Tree{root: &dictTrie{
+		name:     "",
+		children: make([]*dictTrie, 0),
+		end:      false,
+	}}
 }
 
-func (d *DictTrie) Insert(word string) {
-
-}
-
-func (d *DictTrie) Search(word string) bool {
-	node := d.root
-	for _, v := range node.children {
-		if (v.name == word && v.end) || v.name == "**" {
-			return true
+func (t *Tree) Insert(path string) {
+	node := t.root
+	for _, p := range strings.Split(path, "/") {
+		if p == "" {
+			continue
 		}
-		node = v
+		children := node.children
+		for _, child := range children {
+			if child.name == p {
+				node = child
+				break
+			}
+		}
+
 	}
-	return false
 }
