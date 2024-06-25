@@ -53,10 +53,24 @@ type nacosConfig struct {
 	Refresh bool   `yaml:"refresh" mapstructure:"refresh"`
 }
 
+type registerConfig struct {
+	Ip          string            `yaml:"ip" mapstructure:"ip"`                   //required
+	Port        uint64            `yaml:"port" mapstructure:"port"`               //required
+	Weight      float64           `yaml:"weight" mapstructure:"weight"`           //required,it must be lager than 0
+	Enable      bool              `yaml:"enabled" mapstructure:"enabled"`         //required,the instance can be access or not
+	Healthy     bool              `yaml:"healthy" mapstructure:"healthy"`         //required,the instance is health or not
+	Metadata    map[string]string `yaml:"metadata" mapstructure:"metadata"`       //optional
+	ClusterName string            `yaml:"clusterName" mapstructure:"clusterName"` //optional
+	ServiceName string            `yaml:"serviceName" mapstructure:"serviceName"` //required
+	GroupName   string            `yaml:"groupName" mapstructure:"groupName"`     //optional,default:DEFAULT_GROUP
+	Ephemeral   bool              `yaml:"ephemeral" mapstructure:"ephemeral"`     //optional
+}
+
 type discoverConfig struct {
-	EnableDiscover bool        `yaml:"enableDiscover"  mapstructure:"enableDiscover"`
-	EnableConfig   bool        `yaml:"enableConfig" mapstructure:"enableConfig"`
-	Client         client      `yaml:"client" mapstructure:"client"`
-	Server         []server    `yaml:"server" mapstructure:"server"`
-	Config         nacosConfig `yaml:"config" mapstructure:"config"`
+	EnableDiscover bool           `yaml:"enableDiscover"  mapstructure:"enableDiscover"`
+	EnableConfig   bool           `yaml:"enableConfig" mapstructure:"enableConfig"`
+	Client         client         `yaml:"client" mapstructure:"client"`
+	Server         []server       `yaml:"server" mapstructure:"server"`
+	Config         nacosConfig    `yaml:"config" mapstructure:"config"`
+	Discover       registerConfig `yaml:"discover" mapstructure:"discover"`
 }

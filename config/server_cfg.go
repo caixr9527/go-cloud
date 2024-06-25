@@ -7,6 +7,7 @@ type https struct {
 }
 
 type serverConfig struct {
-	Port  uint32 `yaml:"port" mapstructure:"port"`
-	Https https  `yaml:"https" mapstructure:"https"`
+	Port       uint32 `yaml:"port" mapstructure:"port"`
+	Https      https  `yaml:"https" mapstructure:"https"`
+	ServerName string `yaml:"name" mapstructure:"name"`
 }
