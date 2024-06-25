@@ -141,6 +141,7 @@ func (d *Discover) createClient() {
 			return
 		}
 		d.INamingClient = namingClient
+		d.registerInstance()
 	}
 
 	if configuration.Discover.EnableConfig {
@@ -221,4 +222,48 @@ func (d *Discover) serverConfig(configuration *config.Configuration) []constant.
 		})
 	}
 	return serverConfigs
+}
+
+func (d *Discover) registerInstance() {
+	success, err := d.RegisterInstance(d.getRegisterConfig())
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	if success {
+		log.Println("register instance success")
+	}
+}
+
+func (d *Discover) getRegisterConfig() vo.RegisterInstanceParam {
+	param := vo.RegisterInstanceParam{}
+	configuration := factory.Get(&config.Configuration{})
+	discover := configuration.Discover.Discover
+	if stringUtils.IsNotBlank(discover.Ip) {
+		param.Ip = discover.Ip
+	} else {
+		param.Ip = utils.GetRealIp()
+	}
+	if discover.Port != 0 {
+		param.Port = discover.Port
+	} else {
+		param.Port = uint64(configuration.Server.Port)
+	}
+	if discover.Weight != 0 {
+		param.Weight = discover.Weight
+	} else {
+		param.Weight = 1
+	}
+	param.Enable = discover.Enable
+	param.Healthy = discover.Healthy
+	param.Metadata = discover.Metadata
+	param.ClusterName = discover.ClusterName
+	if stringUtils.IsNotBlank(discover.ServiceName) {
+		param.ServiceName = discover.ServiceName
+	} else {
+		param.ServiceName = configuration.Server.ServerName
+	}
+	param.GroupName = discover.GroupName
+	param.Ephemeral = discover.Ephemeral
+	return param
 }
