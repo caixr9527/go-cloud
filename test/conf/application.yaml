@@ -1,5 +1,5 @@
 server:
-  name: test-service
+  name: go-cloud
   port: 8888
   https:
     enable: true
@@ -32,7 +32,7 @@ discover:
 #    cacheDir: /tmp/nacos/cache
 #    logDir: /tmp/nacos/log
   server:
-    - ipAddr: 192.168.110.152
+    - ipAddr: 127.0.0.1
       port: 8848
       scheme: http
       contextPath: /nacos
@@ -40,7 +40,10 @@ discover:
     dataIds: common.yaml,test.yaml
     group: DEFAULT_GROUP
     refresh: true
-
+  discover:
+    enable: true
+    healthy: true
+    ephemeral: true
 
 rtsp:
   ip: 1.1.1.1

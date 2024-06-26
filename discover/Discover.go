@@ -32,69 +32,13 @@ type Discover struct {
 }
 
 func (d *Discover) Refresh() {
-	configuration := factory.Get(&config.Configuration{})
-	l := factory.Get(&logger.Log{})
-	if !configuration.Discover.EnableConfig {
-		return
-	}
-	dataIds := strings.Split(configuration.Discover.Config.DataIds, ",")
-	group := configuration.Discover.Config.Group
-	var contents strings.Builder
-	for index := range dataIds {
-		dataId := dataIds[index]
-		content, err := d.GetConfig(vo.ConfigParam{
-			DataId: dataId,
-			Group:  group,
-		})
-		if err != nil {
-			l.Error(err.Error())
-		} else if content != "" {
-			contents.WriteString(content)
-			contents.WriteString("\n")
-			contents.WriteString("---")
-		}
-	}
-	newContents := contents.String()
-	if newContents != "" {
-		err := yaml.Unmarshal([]byte(newContents), &configuration)
-		if err != nil {
-			l.Error(err.Error())
-			return
-		}
-		factory.Create(configuration)
-		configuration.LoadRemoteCustomConfig(newContents)
-	}
-
-	if configuration.Discover.Config.Refresh {
-		for index := range dataIds {
-			dataId := dataIds[index]
-			go func() {
-				l.Info(fmt.Sprintf("listening config group: %s, dataId: %s", group, dataId))
-				err := d.IConfigClient.ListenConfig(vo.ConfigParam{
-					DataId: dataId,
-					Group:  group,
-					OnChange: func(namespace, group, dataId, data string) {
-						l.Info(fmt.Sprintf("config change namespace: %s, group: %s, dataId: %s", namespace, group, dataId))
-						err := yaml.Unmarshal([]byte(data), &configuration)
-						if err != nil {
-							l.Error(err.Error())
-							return
-						}
-						factory.Create(configuration)
-						configuration.LoadRemoteCustomConfig(data)
-					},
-				})
-				if err != nil {
-					l.Error(err.Error())
-				}
-			}()
-		}
-	}
-
+	d.refreshConfig()
+	d.registerInstance()
 }
 
 func (d *Discover) Destroy() {
 	l := factory.Get(&logger.Log{})
+	d.deregister()
 	if d.IConfigClient != nil {
 		d.IConfigClient.CloseClient()
 		l.Info("destory nacos config client")
@@ -141,7 +85,6 @@ func (d *Discover) createClient() {
 			return
 		}
 		d.INamingClient = namingClient
-		d.registerInstance()
 	}
 
 	if configuration.Discover.EnableConfig {
@@ -257,7 +200,47 @@ func (d *Discover) getRegisterConfig() vo.RegisterInstanceParam {
 	param.Enable = discover.Enable
 	param.Healthy = discover.Healthy
 	param.Metadata = discover.Metadata
-	param.ClusterName = discover.ClusterName
+	if stringUtils.IsNotBlank(discover.ClusterName) {
+		param.ClusterName = discover.ClusterName
+	}
+	if stringUtils.IsNotBlank(discover.ServiceName) {
+		param.ServiceName = discover.ServiceName
+	} else {
+		param.ServiceName = configuration.Server.ServerName
+	}
+	if stringUtils.IsNotBlank(discover.GroupName) {
+		param.GroupName = discover.GroupName
+	}
+	param.Ephemeral = true
+	return param
+}
+
+func (d *Discover) deregister() {
+	success, err := d.DeregisterInstance(d.getDeregisterConfig())
+	l := factory.Get(&logger.Log{})
+	if err != nil {
+		l.Error(err.Error())
+	}
+	if success {
+		l.Info("deregister instance success")
+	}
+}
+
+func (d *Discover) getDeregisterConfig() vo.DeregisterInstanceParam {
+	param := vo.DeregisterInstanceParam{}
+	configuration := factory.Get(&config.Configuration{})
+	discover := configuration.Discover.Discover
+	if stringUtils.IsNotBlank(discover.Ip) {
+		param.Ip = discover.Ip
+	} else {
+		param.Ip = utils.GetRealIp()
+	}
+	if discover.Port != 0 {
+		param.Port = discover.Port
+	} else {
+		param.Port = uint64(configuration.Server.Port)
+	}
+	param.Cluster = discover.ClusterName
 	if stringUtils.IsNotBlank(discover.ServiceName) {
 		param.ServiceName = discover.ServiceName
 	} else {
@@ -266,4 +249,65 @@ func (d *Discover) getRegisterConfig() vo.RegisterInstanceParam {
 	param.GroupName = discover.GroupName
 	param.Ephemeral = discover.Ephemeral
 	return param
+}
+
+func (d *Discover) refreshConfig() {
+	configuration := factory.Get(&config.Configuration{})
+	l := factory.Get(&logger.Log{})
+	if !configuration.Discover.EnableConfig {
+		return
+	}
+	dataIds := strings.Split(configuration.Discover.Config.DataIds, ",")
+	group := configuration.Discover.Config.Group
+	var contents strings.Builder
+	for index := range dataIds {
+		dataId := dataIds[index]
+		content, err := d.GetConfig(vo.ConfigParam{
+			DataId: dataId,
+			Group:  group,
+		})
+		if err != nil {
+			l.Error(err.Error())
+		} else if content != "" {
+			contents.WriteString(content)
+			contents.WriteString("\n")
+			contents.WriteString("---")
+		}
+	}
+	newContents := contents.String()
+	if newContents != "" {
+		err := yaml.Unmarshal([]byte(newContents), &configuration)
+		if err != nil {
+			l.Error(err.Error())
+			return
+		}
+		factory.Create(configuration)
+		configuration.LoadRemoteCustomConfig(newContents)
+	}
+
+	if configuration.Discover.Config.Refresh {
+		for index := range dataIds {
+			dataId := dataIds[index]
+			go func() {
+				l.Info(fmt.Sprintf("listening config group: %s, dataId: %s", group, dataId))
+				err := d.IConfigClient.ListenConfig(vo.ConfigParam{
+					DataId: dataId,
+					Group:  group,
+					OnChange: func(namespace, group, dataId, data string) {
+						l.Info(fmt.Sprintf("config change namespace: %s, group: %s, dataId: %s", namespace, group, dataId))
+						err := yaml.Unmarshal([]byte(data), &configuration)
+						if err != nil {
+							l.Error(err.Error())
+							return
+						}
+						factory.Create(configuration)
+						configuration.LoadRemoteCustomConfig(data)
+					},
+				})
+				if err != nil {
+					l.Error(err.Error())
+				}
+			}()
+		}
+	}
 }

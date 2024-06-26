@@ -57,7 +57,7 @@ type registerConfig struct {
 	Ip          string            `yaml:"ip" mapstructure:"ip"`                   //required
 	Port        uint64            `yaml:"port" mapstructure:"port"`               //required
 	Weight      float64           `yaml:"weight" mapstructure:"weight"`           //required,it must be lager than 0
-	Enable      bool              `yaml:"enabled" mapstructure:"enabled"`         //required,the instance can be access or not
+	Enable      bool              `yaml:"enable" mapstructure:"enable"`           //required,the instance can be access or not
 	Healthy     bool              `yaml:"healthy" mapstructure:"healthy"`         //required,the instance is health or not
 	Metadata    map[string]string `yaml:"metadata" mapstructure:"metadata"`       //optional
 	ClusterName string            `yaml:"clusterName" mapstructure:"clusterName"` //optional
