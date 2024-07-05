@@ -7,6 +7,7 @@ import (
 )
 
 func Get[T any](t T) T {
+	// todo fix
 	name := utils.ObjName(t)
 	val, ok := component.SinglePool.Get(name)
 	if !ok {
