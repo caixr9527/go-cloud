@@ -7,8 +7,7 @@ import (
 )
 
 func Get[T any](t T) T {
-	// todo fix
-	name := utils.ObjName(t)
+	name := getName(t)
 	val, ok := component.SinglePool.Get(name)
 	if !ok {
 		return t
@@ -20,6 +19,12 @@ func Create(obj any) {
 	if obj == nil {
 		return
 	}
+	name := getName(obj)
+
+	component.SinglePool.Register(name, obj)
+}
+
+func getName(obj any) string {
 	v := reflect.ValueOf(obj)
 	m := v.MethodByName("Name")
 	var name string
@@ -31,8 +36,7 @@ func Create(obj any) {
 	} else {
 		name = utils.ObjName(obj)
 	}
-
-	component.SinglePool.Register(name, obj)
+	return name
 }
 
 func Del(obj any) {
