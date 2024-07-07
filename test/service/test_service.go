@@ -9,3 +9,7 @@ type GoodsService struct {
 func (g *GoodsService) Client() transport.Client {
 	return transport.Client{}
 }
+
+func (g *GoodsService) Register() {
+
+}

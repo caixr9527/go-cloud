@@ -16,4 +16,5 @@ type Client struct {
 
 type Service interface {
 	Client() Client
+	Register()
 }
