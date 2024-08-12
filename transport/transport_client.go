@@ -6,8 +6,9 @@ type Configuration interface {
 }
 
 type Client struct {
-	Protocol      string
-	Name          string
+	Protocol      string // http,rpc
+	Name          string // service name
+	ContentId     string // content id
 	Url           string
 	Path          string
 	Fallback      Fallback
@@ -16,5 +17,7 @@ type Client struct {
 
 type Service interface {
 	Client() Client
-	Register()
 }
+
+// 复用component.go中的Pool
+// factory.go 统一的create和get出入口
