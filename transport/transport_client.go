@@ -20,4 +20,4 @@ type Service interface {
 }
 
 // 复用component.go中的Pool
-// factory.go 统一的create和get出入口
+// factory统一的create和get出入口

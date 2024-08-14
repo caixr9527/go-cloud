@@ -1,5 +1,7 @@
 package component
 
+import "github.com/caixr9527/go-cloud/common"
+
 type Pool map[string]any
 
 type Singleton struct {
@@ -26,17 +28,22 @@ func (s *Singleton) Get(key string) (any, bool) {
 }
 
 type component interface {
+	common.Bean
 	Create()
-	Order() int
 	Refresh()
 	Destroy()
-	Name() string
 }
 
 var Components = make([]component, 0)
 
+var beans = make([]common.Bean, 0)
+
 func RegisterComponent(c ...component) {
 	Components = append(Components, c...)
+}
+
+func RegisterBean(b ...common.Bean) {
+	beans = append(beans, b...)
 }
 
 type Sort []component
