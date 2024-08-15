@@ -1,5 +1,7 @@
 package transport
 
+import "github.com/caixr9527/go-cloud/common"
+
 type Fallback interface {
 }
 type Configuration interface {
@@ -7,7 +9,7 @@ type Configuration interface {
 
 type Client struct {
 	Protocol      string // http,rpc
-	Name          string // service name
+	ServiceName   string // service name
 	ContentId     string // content id
 	Url           string
 	Path          string
@@ -16,6 +18,7 @@ type Client struct {
 }
 
 type Service interface {
+	common.Bean
 	Client() Client
 }
 
