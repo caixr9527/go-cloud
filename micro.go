@@ -136,10 +136,10 @@ func (e *Engine) Shutdown(srv *http.Server) {
 func initialization() {
 	sort.Sort(component.Sort(component.Components))
 	for index := range component.Components {
-		component.Components[index].Create()
+		component.Components[index].(component.Component).Create()
 	}
 	for index := range component.Components {
-		component.Components[index].Refresh()
+		component.Components[index].(component.Component).Refresh()
 	}
 }
 

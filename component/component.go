@@ -27,18 +27,18 @@ func (s *Singleton) Get(key string) (any, bool) {
 	return value, ok
 }
 
-type component interface {
+type Component interface {
 	common.Bean
 	Create()
 	Refresh()
 	Destroy()
 }
 
-var Components = make([]component, 0)
+var Components = make([]common.Bean, 0)
 
 var beans = make([]common.Bean, 0)
 
-func RegisterComponent(c ...component) {
+func RegisterComponent(c ...common.Bean) {
 	Components = append(Components, c...)
 }
 
@@ -50,7 +50,7 @@ func GetBeans() []common.Bean {
 	return beans
 }
 
-type Sort []component
+type Sort []common.Bean
 
 func (s Sort) Len() int {
 	return len(s)
