@@ -4,7 +4,6 @@ import (
 	"github.com/caixr9527/go-cloud/common/utils"
 	"github.com/caixr9527/go-cloud/config"
 	"github.com/caixr9527/go-cloud/factory"
-	"github.com/caixr9527/go-cloud/internal/component"
 	"github.com/caixr9527/go-cloud/log"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -35,7 +34,7 @@ func (o *Orm) Create() {
 }
 
 func init() {
-	component.RegisterComponent(&Orm{})
+	factory.RegisterComponent(&Orm{})
 }
 
 func (o *Orm) Order() int {

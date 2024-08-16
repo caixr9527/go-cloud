@@ -1,6 +1,7 @@
 package factory
 
 import (
+	"github.com/caixr9527/go-cloud/common"
 	"github.com/caixr9527/go-cloud/common/utils"
 	"github.com/caixr9527/go-cloud/internal/component"
 	"reflect"
@@ -42,4 +43,12 @@ func getName(obj any) string {
 func Del(obj any) {
 	name := utils.ObjName(obj)
 	component.SinglePool.Del(name)
+}
+
+func RegisterComponent(c ...common.Bean) {
+	component.Components = append(component.Components, c...)
+}
+
+func RegisterBean(b ...common.Bean) {
+	component.Beans = append(component.Beans, b...)
 }

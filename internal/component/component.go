@@ -36,19 +36,7 @@ type Component interface {
 
 var Components = make([]common.Bean, 0)
 
-var beans = make([]common.Bean, 0)
-
-func RegisterComponent(c ...common.Bean) {
-	Components = append(Components, c...)
-}
-
-func RegisterBean(b ...common.Bean) {
-	beans = append(beans, b...)
-}
-
-func GetBeans() []common.Bean {
-	return beans
-}
+var Beans = make([]common.Bean, 0)
 
 type Sort []common.Bean
 

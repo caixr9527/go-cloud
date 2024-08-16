@@ -5,7 +5,6 @@ import (
 	"github.com/caixr9527/go-cloud/common/utils"
 	"github.com/caixr9527/go-cloud/config"
 	"github.com/caixr9527/go-cloud/factory"
-	"github.com/caixr9527/go-cloud/internal/component"
 	"github.com/caixr9527/go-cloud/log"
 	"github.com/redis/go-redis/v9"
 	"math"
@@ -20,7 +19,7 @@ type Cache struct {
 }
 
 func init() {
-	component.RegisterComponent(&Cache{})
+	factory.RegisterComponent(&Cache{})
 }
 
 func (c *Cache) Order() int {

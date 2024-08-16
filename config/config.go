@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/caixr9527/go-cloud/common/utils"
 	"github.com/caixr9527/go-cloud/factory"
-	"github.com/caixr9527/go-cloud/internal/component"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
@@ -113,7 +112,7 @@ func (c *Configuration) Refresh() {
 }
 
 func init() {
-	component.RegisterComponent(&Configuration{})
+	factory.RegisterComponent(&Configuration{})
 }
 
 func (c *Configuration) Order() int {

@@ -4,7 +4,6 @@ import (
 	"github.com/caixr9527/go-cloud/common/utils"
 	"github.com/caixr9527/go-cloud/config"
 	"github.com/caixr9527/go-cloud/factory"
-	"github.com/caixr9527/go-cloud/internal/component"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -26,7 +25,7 @@ func (l *Log) Create() {
 }
 
 func init() {
-	component.RegisterComponent(&Log{})
+	factory.RegisterComponent(&Log{})
 }
 func (l *Log) Refresh() {
 	l.initLogger()

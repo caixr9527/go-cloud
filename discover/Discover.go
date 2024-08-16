@@ -6,7 +6,6 @@ import (
 	"github.com/caixr9527/go-cloud/common/utils/stringUtils"
 	"github.com/caixr9527/go-cloud/config"
 	"github.com/caixr9527/go-cloud/factory"
-	"github.com/caixr9527/go-cloud/internal/component"
 	logger "github.com/caixr9527/go-cloud/log"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/config_client"
@@ -23,7 +22,7 @@ import (
 var once sync.Once
 
 func init() {
-	component.RegisterComponent(&Discover{})
+	factory.RegisterComponent(&Discover{})
 }
 
 type Discover struct {
