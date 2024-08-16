@@ -139,6 +139,8 @@ func initialization() {
 	for index := range component.Beans {
 		if bean, ok := component.Beans[index].(component.Component); ok {
 			bean.Create()
+			// todo 修改为返回
+			// 统一做factory.Create操作
 		}
 	}
 	for index := range component.Beans {
