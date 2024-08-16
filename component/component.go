@@ -2,13 +2,13 @@ package component
 
 import "github.com/caixr9527/go-cloud/common"
 
-type Pool map[string]any
+type pool map[string]any
 
 type Singleton struct {
-	cPool Pool
+	cPool pool
 }
 
-var SinglePool = &Singleton{cPool: make(Pool, 0)}
+var SinglePool = &Singleton{cPool: make(pool, 0)}
 
 func (s *Singleton) Register(key string, obj any) {
 	if key != "" && obj != nil {
@@ -44,6 +44,10 @@ func RegisterComponent(c ...component) {
 
 func RegisterBean(b ...common.Bean) {
 	beans = append(beans, b...)
+}
+
+func GetBeans() []common.Bean {
+	return beans
 }
 
 type Sort []component
