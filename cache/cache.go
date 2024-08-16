@@ -3,9 +3,9 @@ package cache
 import (
 	"context"
 	"github.com/caixr9527/go-cloud/common/utils"
-	"github.com/caixr9527/go-cloud/component"
-	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/caixr9527/go-cloud/config"
+	"github.com/caixr9527/go-cloud/factory"
+	"github.com/caixr9527/go-cloud/internal/component"
 	"github.com/caixr9527/go-cloud/log"
 	"github.com/redis/go-redis/v9"
 	"math"

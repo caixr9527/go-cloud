@@ -2,9 +2,9 @@ package log
 
 import (
 	"github.com/caixr9527/go-cloud/common/utils"
-	"github.com/caixr9527/go-cloud/component"
-	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/caixr9527/go-cloud/config"
+	"github.com/caixr9527/go-cloud/factory"
+	"github.com/caixr9527/go-cloud/internal/component"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"

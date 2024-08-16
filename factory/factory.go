@@ -2,7 +2,7 @@ package factory
 
 import (
 	"github.com/caixr9527/go-cloud/common/utils"
-	"github.com/caixr9527/go-cloud/component"
+	"github.com/caixr9527/go-cloud/internal/component"
 	"reflect"
 )
 

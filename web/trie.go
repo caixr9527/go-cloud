@@ -1,7 +1,7 @@
 package web
 
 import (
-	"github.com/caixr9527/go-cloud/component/factory"
+	"github.com/caixr9527/go-cloud/factory"
 	"github.com/caixr9527/go-cloud/log"
 	"strings"
 	"sync"

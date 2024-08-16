@@ -2,8 +2,8 @@ package auth
 
 import (
 	"github.com/caixr9527/go-cloud/common/utils/sliceUtils"
-	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/caixr9527/go-cloud/config"
+	"github.com/caixr9527/go-cloud/factory"
 	"github.com/caixr9527/go-cloud/web"
 	"github.com/golang-jwt/jwt/v5"
 	"net/http"

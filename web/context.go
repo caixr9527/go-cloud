@@ -3,7 +3,7 @@ package web
 import (
 	"errors"
 	"github.com/caixr9527/go-cloud/common/utils/stringUtils"
-	"github.com/caixr9527/go-cloud/component/factory"
+	"github.com/caixr9527/go-cloud/factory"
 	logger "github.com/caixr9527/go-cloud/log"
 	"github.com/caixr9527/go-cloud/web/binding"
 	"github.com/caixr9527/go-cloud/web/render"

@@ -2,7 +2,7 @@ package cache
 
 import (
 	"context"
-	"github.com/caixr9527/go-cloud/component/factory"
+	"github.com/caixr9527/go-cloud/factory"
 	"github.com/caixr9527/go-cloud/log"
 	"github.com/redis/go-redis/v9"
 	"time"

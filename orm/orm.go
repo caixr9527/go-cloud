@@ -2,9 +2,9 @@ package orm
 
 import (
 	"github.com/caixr9527/go-cloud/common/utils"
-	"github.com/caixr9527/go-cloud/component"
-	"github.com/caixr9527/go-cloud/component/factory"
 	"github.com/caixr9527/go-cloud/config"
+	"github.com/caixr9527/go-cloud/factory"
+	"github.com/caixr9527/go-cloud/internal/component"
 	"github.com/caixr9527/go-cloud/log"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
