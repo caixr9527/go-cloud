@@ -19,7 +19,7 @@ type Cache struct {
 }
 
 func init() {
-	factory.RegisterComponent(&Cache{})
+	factory.Register(&Cache{})
 }
 
 func (c *Cache) Order() int {

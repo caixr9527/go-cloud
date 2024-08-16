@@ -10,6 +10,7 @@ import (
 	"github.com/caixr9527/go-cloud/internal/component"
 	"github.com/caixr9527/go-cloud/internal/middleware"
 	logger "github.com/caixr9527/go-cloud/log"
+	"github.com/caixr9527/go-cloud/transport"
 	"github.com/caixr9527/go-cloud/web"
 	"github.com/caixr9527/go-cloud/web/render"
 	"html/template"
@@ -134,13 +135,24 @@ func (e *Engine) Shutdown(srv *http.Server) {
 }
 
 func initialization() {
-	sort.Sort(component.Sort(component.Components))
-	for index := range component.Components {
-		component.Components[index].(component.Component).Create()
+	sort.Sort(component.Sort(component.Beans))
+	for index := range component.Beans {
+		if bean, ok := component.Beans[index].(component.Component); ok {
+			bean.Create()
+		}
 	}
-	for index := range component.Components {
-		component.Components[index].(component.Component).Refresh()
+	for index := range component.Beans {
+		if bean, ok := component.Beans[index].(component.Component); ok {
+			bean.Refresh()
+		}
 	}
+
+	for index := range component.Beans {
+		if _, ok := component.Beans[index].(transport.Service); ok {
+			// todo
+		}
+	}
+
 }
 
 func (e *Engine) runTLS(configuration *config.Configuration) {

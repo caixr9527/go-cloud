@@ -112,7 +112,7 @@ func (c *Configuration) Refresh() {
 }
 
 func init() {
-	factory.RegisterComponent(&Configuration{})
+	factory.Register(&Configuration{})
 }
 
 func (c *Configuration) Order() int {

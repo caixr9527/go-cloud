@@ -25,7 +25,7 @@ func (l *Log) Create() {
 }
 
 func init() {
-	factory.RegisterComponent(&Log{})
+	factory.Register(&Log{})
 }
 func (l *Log) Refresh() {
 	l.initLogger()

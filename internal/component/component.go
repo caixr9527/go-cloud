@@ -34,8 +34,6 @@ type Component interface {
 	Destroy()
 }
 
-var Components = make([]common.Bean, 0)
-
 var Beans = make([]common.Bean, 0)
 
 type Sort []common.Bean

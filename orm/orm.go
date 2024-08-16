@@ -34,7 +34,7 @@ func (o *Orm) Create() {
 }
 
 func init() {
-	factory.RegisterComponent(&Orm{})
+	factory.Register(&Orm{})
 }
 
 func (o *Orm) Order() int {

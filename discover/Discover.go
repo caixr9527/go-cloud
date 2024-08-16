@@ -22,7 +22,7 @@ import (
 var once sync.Once
 
 func init() {
-	factory.RegisterComponent(&Discover{})
+	factory.Register(&Discover{})
 }
 
 type Discover struct {

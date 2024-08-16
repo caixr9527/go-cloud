@@ -45,10 +45,6 @@ func Del(obj any) {
 	component.SinglePool.Del(name)
 }
 
-func RegisterComponent(c ...common.Bean) {
-	component.Components = append(component.Components, c...)
-}
-
-func RegisterBean(b ...common.Bean) {
-	component.Beans = append(component.Beans, b...)
+func Register(c ...common.Bean) {
+	component.Beans = append(component.Beans, c...)
 }
