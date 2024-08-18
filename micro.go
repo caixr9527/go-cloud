@@ -139,13 +139,16 @@ func initialization() {
 	for index := range component.Beans {
 		if bean, ok := component.Beans[index].(component.Component); ok {
 			bean.Create()
-			// todo 修改为返回 active
 			// 统一做factory.Create操作
+			// todo wait test
+			factory.Create(bean)
 		}
 	}
 	for index := range component.Beans {
 		if bean, ok := component.Beans[index].(component.Component); ok {
 			bean.Refresh()
+			// todo wait test
+			factory.Create(bean)
 		}
 	}
 
