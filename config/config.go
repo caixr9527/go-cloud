@@ -56,7 +56,7 @@ func Add(conf ...any) error {
 func (c *Configuration) Name() string {
 	return utils.ObjName(c)
 }
-func (c *Configuration) Create() {
+func (c *Configuration) Create() bool {
 	once.Do(func() {
 		viper.SetConfigFile("conf/application.yaml")
 		viper.WatchConfig()
@@ -75,9 +75,9 @@ func (c *Configuration) Create() {
 		if err != nil {
 			log.Println(err)
 		}
-		factory.Create(c)
 		c.LoadLocalCustomConfig()
 	})
+	return true
 }
 
 func (c *Configuration) LoadLocalCustomConfig() {
@@ -107,8 +107,8 @@ func (c *Configuration) Destroy() {
 	log.Println("destroy configuration success")
 }
 
-func (c *Configuration) Refresh() {
-
+func (c *Configuration) Refresh() bool {
+	return false
 }
 
 func init() {

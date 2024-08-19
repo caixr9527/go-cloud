@@ -138,17 +138,16 @@ func initialization() {
 	sort.Sort(component.Sort(component.Beans))
 	for index := range component.Beans {
 		if bean, ok := component.Beans[index].(component.Component); ok {
-			bean.Create()
-			// 统一做factory.Create操作
-			// todo wait test
-			factory.Create(bean)
+			if ok := bean.Create(); ok {
+				factory.Create(bean)
+			}
 		}
 	}
 	for index := range component.Beans {
 		if bean, ok := component.Beans[index].(component.Component); ok {
-			bean.Refresh()
-			// todo wait test
-			factory.Create(bean)
+			if ok := bean.Refresh(); ok {
+				factory.Create(bean)
+			}
 		}
 	}
 

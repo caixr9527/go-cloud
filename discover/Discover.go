@@ -30,9 +30,10 @@ type Discover struct {
 	config_client.IConfigClient
 }
 
-func (d *Discover) Refresh() {
+func (d *Discover) Refresh() bool {
 	d.refreshConfig()
 	d.registerInstance()
+	return true
 }
 
 func (d *Discover) Destroy() {
@@ -56,19 +57,21 @@ func (d *Discover) Name() string {
 	return utils.ObjName(d)
 }
 
-func (d *Discover) Create() {
+func (d *Discover) Create() bool {
 	configuration := factory.Get(&config.Configuration{})
 	if !configuration.Discover.EnableDiscover && !configuration.Discover.EnableConfig {
-		return
+		return false
 	}
+	var result = false
 	once.Do(func() {
 		log.Println("connect nacos")
-		d.createClient()
+		result = d.createClient()
 		log.Println("connect nacos success")
 	})
+	return result
 }
 
-func (d *Discover) createClient() {
+func (d *Discover) createClient() bool {
 	configuration := factory.Get(&config.Configuration{})
 	clientConfig := d.clientConf(configuration)
 	serverConfigs := d.serverConfig(configuration)
@@ -81,7 +84,7 @@ func (d *Discover) createClient() {
 		)
 		if err != nil {
 			fmt.Println(err)
-			return
+			return false
 		}
 		d.INamingClient = namingClient
 	}
@@ -95,14 +98,14 @@ func (d *Discover) createClient() {
 		)
 		if err != nil {
 			fmt.Println(err)
-			return
+			return false
 		}
 		d.IConfigClient = configClient
 	}
 	if d.IConfigClient == nil && d.INamingClient == nil {
-		return
+		return false
 	}
-	factory.Create(d)
+	return true
 }
 
 func (d *Discover) clientConf(configuration *config.Configuration) constant.ClientConfig {

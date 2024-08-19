@@ -32,18 +32,18 @@ func (c *Cache) Destroy() {
 	factory.Del(c)
 	factory.Get(&log.Log{}).Info("redis destroy success")
 }
-func (c *Cache) Refresh() {
-
+func (c *Cache) Refresh() bool {
+	return false
 }
 
 func (c *Cache) Name() string {
 	return utils.ObjName(c)
 }
 
-func (c *Cache) Create() {
+func (c *Cache) Create() bool {
 	configuration := factory.Get(&config.Configuration{})
 	if !configuration.Redis.Enable {
-		return
+		return false
 	}
 	logger := factory.Get(&log.Log{})
 	once.Do(func() {
@@ -51,6 +51,7 @@ func (c *Cache) Create() {
 		c.new(configuration)
 		logger.Info("create redis conn success")
 	})
+	return true
 }
 
 func (c *Cache) new(configuration *config.Configuration) {
@@ -85,5 +86,4 @@ func (c *Cache) new(configuration *config.Configuration) {
 		Context: context.Background(),
 	}
 	c.Redis = redisClient
-	factory.Create(c)
 }

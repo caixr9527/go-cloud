@@ -29,8 +29,8 @@ func (s *Singleton) Get(key string) (any, bool) {
 
 type Component interface {
 	common.Bean
-	Create()
-	Refresh()
+	Create() bool
+	Refresh() bool
 	Destroy()
 }
 

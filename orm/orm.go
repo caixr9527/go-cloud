@@ -18,10 +18,10 @@ type Orm struct {
 	Db *gorm.DB
 }
 
-func (o *Orm) Create() {
+func (o *Orm) Create() bool {
 	configuration := factory.Get(&config.Configuration{})
 	if !configuration.Db.Enable {
-		return
+		return false
 	}
 	once.Do(func() {
 		t := configuration.Db.Type
@@ -31,6 +31,7 @@ func (o *Orm) Create() {
 			o.initMysqlConn()
 		}
 	})
+	return true
 }
 
 func init() {
@@ -45,8 +46,8 @@ func (o *Orm) Name() string {
 	return utils.ObjName(o)
 }
 
-func (o *Orm) Refresh() {
-
+func (o *Orm) Refresh() bool {
+	return false
 }
 
 func (o *Orm) Destroy() {
@@ -95,6 +96,5 @@ func (o *Orm) initMysqlConn() {
 		conn.SetConnMaxIdleTime(time.Duration(mysqlCfg.MaxIdleTime))
 	}
 	o.Db = db
-	factory.Create(o)
 	logger.Info("init mysql conn success")
 }

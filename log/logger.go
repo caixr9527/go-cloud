@@ -18,17 +18,19 @@ type Log struct {
 	*zap.Logger
 }
 
-func (l *Log) Create() {
+func (l *Log) Create() bool {
 	once.Do(func() {
 		l.initLogger()
 	})
+	return true
 }
 
 func init() {
 	factory.Register(&Log{})
 }
-func (l *Log) Refresh() {
+func (l *Log) Refresh() bool {
 	l.initLogger()
+	return true
 }
 func (l *Log) Order() int {
 	return math.MinInt + 2
@@ -118,5 +120,4 @@ func (l *Log) initLogger() {
 	} else {
 		l.Logger = zap.New(core, caller)
 	}
-	factory.Create(l)
 }
