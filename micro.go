@@ -153,10 +153,14 @@ func initialization() {
 
 	for index := range component.Beans {
 		if _, ok := component.Beans[index].(transport.Service); ok {
-			// todo
+			createProxy()
 		}
 	}
 
+}
+
+func createProxy() {
+	// todo
 }
 
 func (e *Engine) runTLS(configuration *config.Configuration) {
