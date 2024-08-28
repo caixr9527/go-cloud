@@ -161,6 +161,38 @@ func initialization() {
 
 func createProxy() {
 	// todo
+	//targetValue := reflect.ValueOf(target).Elem()
+	//targetType := targetValue.Type()
+	//
+	//for i := 0; i < targetValue.NumField(); i++ {
+	//	field := targetValue.Field(i)
+	//	if field.Kind() == reflect.Func {
+	//		methodName := targetType.Field(i).Name
+	//
+	//		proxyFunc := func(args []reflect.Value) (results []reflect.Value) {
+	//			// 构造请求URL
+	//			path := fmt.Sprintf("%s/%s/%v", fc.baseURL, strings.ToLower(methodName), args[0].Interface())
+	//			resp, err := http.Get(path)
+	//			if err != nil {
+	//				return []reflect.Value{reflect.Zero(field.Type().Out(0)), reflect.ValueOf(err)}
+	//			}
+	//			defer resp.Body.Close()
+	//
+	//			if resp.StatusCode != http.StatusOK {
+	//				return []reflect.Value{reflect.Zero(field.Type().Out(0)), reflect.ValueOf(errors.New("non-200 status code"))}
+	//			}
+	//
+	//			result := reflect.New(field.Type().Out(0).Elem()).Interface()
+	//			if err := json.NewDecoder(resp.Body).Decode(result); err != nil {
+	//				return []reflect.Value{reflect.Zero(field.Type().Out(0)), reflect.ValueOf(err)}
+	//			}
+	//
+	//			return []reflect.Value{reflect.ValueOf(result), reflect.Zero(field.Type().Out(1))}
+	//		}
+	//
+	//		proxyValue := reflect.MakeFunc(field.Type(), proxyFunc)
+	//		field.Set(proxyValue)
+	//	}
 }
 
 func (e *Engine) runTLS(configuration *config.Configuration) {
